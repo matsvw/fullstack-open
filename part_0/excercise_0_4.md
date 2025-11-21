@@ -8,7 +8,7 @@ sequenceDiagram
     server-->>browser: 302 Found -> exampleapp/notes
     deactivate server
 
-    Note right of browser: The server has saved the note, and redirects the browser to reload the page with notes
+    Note left of server: The server has saved the note, and redirects the browser to reload the page with notes
 
     browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/notes
     activate server
@@ -29,6 +29,6 @@ sequenceDiagram
 
     browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
     activate server
-    server-->>browser: the JSON containing the notes
+    server-->>browser: the JSON data ontaining the notes
     deactivate server
 ```
