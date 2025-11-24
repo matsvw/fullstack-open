@@ -8,23 +8,25 @@ const Button = (props) => (
   </button>
 )
 
+const StatisticLine = (props) => <Display caption={props.text} value={props.value} />
+
 const Statistics = (props) => {
   const { good, neutral, bad } = props
 
   if (good + neutral + bad === 0) {
     return <div>No feedback given!</div>
   }
-
-  return (
+  return(
     <div>
-      <Display caption="good" value={good} />
-      <Display caption="neutral" value={neutral} />
-      <Display caption="bad" value={bad} /> 
-      <Display caption="all" value={good + neutral + bad} />
-      <Display caption="average" value={(good - bad) / (good + neutral + bad)} />
+      <StatisticLine text="good" value ={good} />
+      <StatisticLine text="neutral" value ={neutral} />
+      <StatisticLine text="bad" value ={bad} />
+      <StatisticLine text="all" value ={good + neutral + bad} />
+      <StatisticLine text="average" value ={(good - bad) / (good + neutral + bad)} />
     </div>
   )
 }
+
 
 const App = () => {
   // save clicks of each button to its own state
