@@ -23,13 +23,33 @@ const App = () => {
   console.log('render', persons.length, 'persons')
 
   const addPerson = (newPerson) => {
-    console.log('button clicked', event)
     if (persons.some(person => person.name === newPerson.name)) {
-      alert(`${newPerson.name} is already added to phonebook`)
-      return false
+      const result = confirm(`${newPerson.name} is already added to phonebook. Replace the old number with a new one?`);
+      if (!result) {
+        return false
+      }
+      newPerson.id = persons.find(person => person.name === newPerson.name).id // use id of (first matching) existing person
+
+      axios.put(`http://localhost:3001/persons/${newPerson.id}`, newPerson).then(response => {
+        // update list to match server data
+        if (response.status >= 200 && response.status < 300) {
+          setPersons(persons.map(person => person.id !== newPerson.id ? person : response.data))
+          return true
+        }
+      })
     }
-    setPersons(persons.concat(newPerson))
-    return true
+    else {
+    axios
+      .post('http://localhost:3001/persons', newPerson)
+      .then(response => {
+        console.log(response.data)
+        if (response.status >= 200 && response.status < 300) {
+          setPersons(persons.concat(response.data))
+          return true
+        }
+      })
+    }
+    return false // default return value if something goes wrong
   }
 
   const filterList = (event) => {
