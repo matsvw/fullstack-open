@@ -13,44 +13,58 @@ const App = () => {
     console.log('effect')
     personService
       .getAll()
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+      .then(personList => {
+        setPersons(personList)
       })
   }
 
   useEffect(hook, [])
   console.log('render', persons.length, 'persons')
 
-  const addPerson = (newPerson) => {
-    if (persons.some(person => person.name === newPerson.name)) {
-      const result = confirm(`${newPerson.name} is already added to phonebook. Replace the old number with a new one?`);
-      if (!result) {
-        return false
-      }
-      newPerson.id = persons.find(person => person.name === newPerson.name).id // use id of (first matching) existing person
 
-      personService.update(newPerson.id, newPerson).then(response => {
-        // update list to match server data
-        if (response.status >= 200 && response.status < 300) {
-          setPersons(persons.map(person => person.id !== newPerson.id ? person : response.data))
-          return true
+  const addPerson = async (newPerson) => {
+    try {
+      // Check if person already exists
+      const existing = persons.find(person => person.name === newPerson.name);
+
+      if (existing) {
+        const confirmUpdate = confirm(
+          `${newPerson.name} is already added to phonebook. Replace the old number with a new one?`
+        );
+
+        if (!confirmUpdate) {
+          return false; // User canceled
         }
-      })
+
+        // Prepare updated person object
+        const updatedPerson = { ...newPerson, id: existing.id };
+
+        // Update on server
+        const response = await personService.update(existing.id, updatedPerson);
+
+        // Update state using functional update
+        setPersons(prev =>
+          prev.map(person => person.id !== existing.id ? person : response)
+        );
+
+        return true; // Success
+      }
+
+      // If person does not exist, create new
+      const addedPerson = await personService.create(newPerson);
+
+      setPersons(prev => prev.concat(addedPerson));
+
+      return true; // Success
+    } catch (error) {
+      console.error(error);
+
+      // Show user-friendly message
+      alert(`Operation failed: ${error.response?.data?.error || error.message}`);
+
+      return false; // Failure
     }
-    else {
-      personService
-      .create(newPerson)
-      .then(response => {
-        console.log(response.data)
-        if (response.status >= 200 && response.status < 300) {
-          setPersons(persons.concat(response.data))
-          return true
-        }
-      })
-    }
-    return false // default return value if something goes wrong
-  }
+  };
 
   const filterList = (event) => {
     setFilter(event.target.value.toLowerCase())

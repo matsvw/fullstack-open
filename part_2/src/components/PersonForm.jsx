@@ -10,9 +10,9 @@ const PersonForm = ({ addPerson }) => {
     setNewPerson({...newPerson, number: event.target.value})
   }
 
-  const addNewPerson = (event) => {
+  const addNewPerson = async (event) => {
     event.preventDefault()
-    if (addPerson(newPerson)) {
+    if (await addPerson(newPerson)) {
       setNewPerson({ name: '', number: '' })
     }
   }
