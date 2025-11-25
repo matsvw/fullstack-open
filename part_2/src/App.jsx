@@ -44,6 +44,7 @@ const App = () => {
 
       if (existing) {
         const confirmUpdate = confirm(
+          // already done so exercise 2.15 is ready
           `${newPerson.name} is already added to phonebook. Replace the old number with a new one?`
         );
 
