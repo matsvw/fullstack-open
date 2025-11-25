@@ -7,7 +7,7 @@ import PersonForm from './components/PersonForm'
 import Notification from './components/Notification'
 
 const App = () => {
-  const [persons, setPersons] = useState([])
+  const [persons, setPersons] = useState(null)
   const [filter, setFilter] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [infoMessage, setInfoMessage] = useState(null)
@@ -22,7 +22,7 @@ const App = () => {
   }
 
   useEffect(hook, [])
-  console.log('render', persons.length, 'persons')
+  console.log('render', persons ? persons.length : 0, 'persons')
 
   const setTimeoutMsg = (message, isError=true) => {
         if (isError) {
@@ -112,7 +112,9 @@ const App = () => {
       <h2>Add a new person</h2>
       <PersonForm addPerson={addPerson} />
       <h2>Numbers</h2>
-      <PersonList personsToShow={persons.filter(person => person.name.toLowerCase().includes(filter))} deletePerson={deletePerson} />
+      {persons && (
+        <PersonList personsToShow={persons.filter(person => person.name.toLowerCase().includes(filter))} deletePerson={deletePerson} />
+      )}
     </div>
   )
 }
