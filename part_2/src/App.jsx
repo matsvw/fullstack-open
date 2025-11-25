@@ -4,10 +4,13 @@ import personService from './services/persons'
 import Filter from './components/Filter'
 import PersonList from './components/PersonList'
 import PersonForm from './components/PersonForm'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [filter, setFilter] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [infoMessage, setInfoMessage] = useState(null)
 
   const hook = () => {
     console.log('effect')
@@ -21,6 +24,20 @@ const App = () => {
   useEffect(hook, [])
   console.log('render', persons.length, 'persons')
 
+  const setTimeoutMsg = (message, isError=true) => {
+        if (isError) {
+          setErrorMessage(message)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)            
+        } else {
+          setInfoMessage(message)
+          setTimeout(() => {
+            setInfoMessage(null)
+          }, 5000)            
+        }
+  }
+
   const deletePerson = id => {
     const person = persons.find(p => p.id === id)
     const confirmDelete = confirm(`Delete ${person.name} ?`)
@@ -31,7 +48,7 @@ const App = () => {
           setPersons(persons.filter(p => p.id !== id))
         })
         .catch(error => {
-          alert(`the person '${person.name}' was already deleted from server`)
+          setTimeoutMsg(`The person '${person.name}' was already deleted from server`)
           setPersons(persons.filter(p => p.id !== id))
         })
     }
@@ -57,6 +74,7 @@ const App = () => {
 
         // Update on server
         const response = await personService.update(existing.id, updatedPerson);
+        setTimeoutMsg(`Updated ${response.name}'s number`, false);
 
         // Update state using functional update
         setPersons(prev =>
@@ -68,7 +86,7 @@ const App = () => {
 
       // If person does not exist, create new
       const addedPerson = await personService.create(newPerson);
-
+      setTimeoutMsg(`Added ${addedPerson.name}`, false);
       setPersons(prev => prev.concat(addedPerson));
 
       return true; // Success
@@ -76,8 +94,7 @@ const App = () => {
       console.error(error);
 
       // Show user-friendly message
-      alert(`Operation failed: ${error.response?.data?.error || error.message}`);
-
+      setTimeoutMsg(`Operation failed: ${error.response?.data?.error || error.message}`);
       return false; // Failure
     }
   };
@@ -89,6 +106,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage} isError={true} />
+      <Notification message={infoMessage} isError={false} />
       <Filter filter={filter} handleFilterChange={filterList} />
       <h2>Add a new person</h2>
       <PersonForm addPerson={addPerson} />
