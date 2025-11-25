@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons'
 
 import Filter from './components/Filter'
 import PersonList from './components/PersonList'
@@ -11,8 +11,8 @@ const App = () => {
 
   const hook = () => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
+    personService
+      .getAll()
       .then(response => {
         console.log('promise fulfilled')
         setPersons(response.data)
@@ -30,7 +30,7 @@ const App = () => {
       }
       newPerson.id = persons.find(person => person.name === newPerson.name).id // use id of (first matching) existing person
 
-      axios.put(`http://localhost:3001/persons/${newPerson.id}`, newPerson).then(response => {
+      personService.update(newPerson.id, newPerson).then(response => {
         // update list to match server data
         if (response.status >= 200 && response.status < 300) {
           setPersons(persons.map(person => person.id !== newPerson.id ? person : response.data))
@@ -39,8 +39,8 @@ const App = () => {
       })
     }
     else {
-    axios
-      .post('http://localhost:3001/persons', newPerson)
+      personService
+      .create(newPerson)
       .then(response => {
         console.log(response.data)
         if (response.status >= 200 && response.status < 300) {
