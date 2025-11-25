@@ -1,6 +1,11 @@
+import { useState, useEffect } from 'react'
+
 import CountryDetails from "./CountryDetails"
 
-const CountryList = ({ countries }) => {
+const CountryList = ({ countries, setFilter }) => {
+
+    const [selectedCountry, setSelectedCountry] = useState(null)
+
     if (!countries) {
         return <div>No countries found from server</div>
     }
@@ -15,12 +20,12 @@ const CountryList = ({ countries }) => {
         return (
             <CountryDetails country={country} />
         )
-    }
+    }    
     return (
         <div>
             {countries.map((country, index) =>
                 <div key={country.cca2}>
-                    {country.name.common}
+                    {country.name.common} <button onClick={() => setFilter(country.name.common)}>show</button>
                 </div>
             )}
         </div>

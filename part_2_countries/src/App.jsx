@@ -37,6 +37,10 @@ const App = () => {
         }
   }
 
+  const setNewFilter = (value) => {
+    setFilter(value.toLowerCase())
+  }
+
   const filterList = (event) => {
     setFilter(event.target.value.toLowerCase())
   }
@@ -46,7 +50,7 @@ const App = () => {
       <Filter filter={filter} handleFilterChange={filterList} />
       <br/>
       {countries && (
-        <CountryList countries={countries.filter(country => country.name.common.toLowerCase().startsWith(filter))} />
+        <CountryList countries={countries.filter(country => country.name.common.toLowerCase().startsWith(filter))} setFilter={setNewFilter} />
       )}
     </div>
   )
