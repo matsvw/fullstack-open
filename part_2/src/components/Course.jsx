@@ -1,5 +1,6 @@
 import Header from './Header';
 import Content from './Content';
+import Total from './Total';
 
 const Course = (props) => {
   console.log(props); 
@@ -8,7 +9,7 @@ const Course = (props) => {
     <>
       <Header course={course} />
       <Content course={course} />
-      <p><b>total of {course.parts.reduce((sum, part) => sum + part.exercises, 0)} exercises</b></p>
+      <Total course={course} />
     </>
   )
 }
