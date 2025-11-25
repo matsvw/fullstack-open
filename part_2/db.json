@@ -21,19 +21,14 @@
       "id": 4
     },
     {
-      "name": "Mats",
-      "number": "0400",
-      "id": "6bc4"
-    },
-    {
       "name": "John",
       "number": "123456",
       "id": "e3e2"
     },
     {
-      "id": "5905",
-      "name": "New person",
-      "number": "654654"
+      "id": "ca7c",
+      "name": "Mats",
+      "number": "123456"
     }
   ]
 }

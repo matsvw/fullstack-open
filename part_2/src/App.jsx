@@ -21,6 +21,21 @@ const App = () => {
   useEffect(hook, [])
   console.log('render', persons.length, 'persons')
 
+  const deletePerson = id => {
+    const person = persons.find(p => p.id === id)
+    const confirmDelete = confirm(`Delete ${person.name} ?`)
+    if (confirmDelete) {
+      personService
+        .deleteEntry(id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id))
+        })
+        .catch(error => {
+          alert(`the person '${person.name}' was already deleted from server`)
+          setPersons(persons.filter(p => p.id !== id))
+        })
+    }
+  }
 
   const addPerson = async (newPerson) => {
     try {
@@ -77,7 +92,7 @@ const App = () => {
       <h2>Add a new person</h2>
       <PersonForm addPerson={addPerson} />
       <h2>Numbers</h2>
-      <PersonList personsToShow={persons.filter(person => person.name.toLowerCase().includes(filter))} />
+      <PersonList personsToShow={persons.filter(person => person.name.toLowerCase().includes(filter))} deletePerson={deletePerson} />
     </div>
   )
 }
