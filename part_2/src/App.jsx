@@ -1,5 +1,6 @@
 //import { useState } from 'react'
 
+// Course information already moved to Course component
 import Course from './components/Course';
 
 const App = () => {
