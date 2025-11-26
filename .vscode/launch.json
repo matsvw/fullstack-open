@@ -1,0 +1,53 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Open index.html",
+            "file": "c:\\Users\\nnr721\\OneDrive - AFRY\\Documents\\Personal\\fullstack-open\\part_2\\index.html"
+        },
+        {
+            "name": "SWA: Run part_1",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:4280",
+            "preLaunchTask": "swa: start part_1",
+            "webRoot": "${workspaceFolder}/part_1",
+            "timeout": 30000
+        },
+        {
+            "name": "SWA: Run part_2",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:4280",
+            "preLaunchTask": "swa: start part_2",
+            "webRoot": "${workspaceFolder}/part_2",
+            "timeout": 30000
+        },
+        {
+            "name": "SWA: Run part_2_countries",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:4280",
+            "preLaunchTask": "swa: start part_2_countries",
+            "webRoot": "${workspaceFolder}/part_2_countries",
+            "timeout": 30000
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug npm start: part_3",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "start"
+            ],
+            "cwd": "${workspaceFolder}/part_3",
+            "console": "integratedTerminal"
+        }
+    ]
+}
