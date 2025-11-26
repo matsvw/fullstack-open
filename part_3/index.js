@@ -39,7 +39,7 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.post('/api/persons', async (request, response) => {
+app.post('/api/persons', async (request, response, next) => {
   const body = request.body
 
   if (!body.name || !body.number) {
@@ -58,13 +58,14 @@ app.post('/api/persons', async (request, response) => {
     number: body.number
   })
 
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
-  })
-
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
 
   Person.findById(id)
@@ -76,50 +77,51 @@ app.get('/api/persons/:id', (request, response) => {
       }
     })
     .catch(error => next(error))
+
 })
 
-app.put('/api/persons/:id', async (request, response) => {
+app.put('/api/persons/:id', async (request, response, next) => {
 
-    const { id } = request.params;
-    const { name, number } = request.body
+  const { id } = request.params;
+  const { name, number } = request.body
 
-    /* Keeping as example of alternative update method
-    const update = {
-      name: request.body.name,
-      number: request.body.number
-      // do NOT include _id in the update payload
-    };
+  /* Keeping as example of alternative update method
+  const update = {
+    name: request.body.name,
+    number: request.body.number
+    // do NOT include _id in the update payload
+  };
 
-    const updated = await Person.findByIdAndUpdate(id, update, {
-      new: true,           // return the updated document
-      runValidators: true, // run schema validators on update
-      context: 'query',    // needed for some validators in updates
-      upsert: false        // do not create a new doc if not found
-    });
-    
-    if (!updated) {
-      return response.status(404).json({ error: `Person with id ${id} not found` });
-    }
-    */
+  const updated = await Person.findByIdAndUpdate(id, update, {
+    new: true,           // return the updated document
+    runValidators: true, // run schema validators on update
+    context: 'query',    // needed for some validators in updates
+    upsert: false        // do not create a new doc if not found
+  });
+  
+  if (!updated) {
+    return response.status(404).json({ error: `Person with id ${id} not found` });
+  }
+  */
 
-    Person.findById(id)
-      .then(person => {
-        if (!person) {
-          return response.status(404).json({ error: `Person with id ${id} not found` });
-        }
+  Person.findById(id)
+    .then(person => {
+      if (!person) {
+        return response.status(404).json({ error: `Person with id ${id} not found` });
+      }
 
-        person.name = name
-        person.number = number
+      person.name = name
+      person.number = number
 
-        return person.save().then((updatedPerson) => {
-          response.json(updatedPerson)
-        })
+      return person.save().then((updatedPerson) => {
+        response.json(updatedPerson)
       })
-      .catch(error => next(error))
+    })
+    .catch(error => next(error))
 
 });
 
-app.delete('/api/persons/:id', async (request, response) => {
+app.delete('/api/persons/:id', async (request, response, next) => {
   try {
     const deletedPerson = await Person.findByIdAndDelete(request.params.id);
     if (!deletedPerson) {
@@ -142,6 +144,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)
