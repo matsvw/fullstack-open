@@ -6,10 +6,6 @@ const Person = require('./models/person')
 
 const app = express()
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
-
 //app.use(cors())
 app.use(express.static('dist'))
 app.use(express.json())
@@ -71,7 +67,7 @@ app.post('/api/persons', async (request, response) => {
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
 
-  Person.findById(id
+  Person.findById(id)
     .then(person => {
       if (person) {
         response.json(person);
@@ -79,17 +75,15 @@ app.get('/api/persons/:id', (request, response) => {
         response.status(404).json({ error: `Person with id ${id} not found` });
       }
     })
-    .catch(err => {
-      console.error(err);
-      response.status(400).json({ error: err.message });
-    })
-  )
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', async (request, response) => {
-  try {
-    const { id } = request.params;
 
+    const { id } = request.params;
+    const { name, number } = request.body
+
+    /* Keeping as example of alternative update method
     const update = {
       name: request.body.name,
       number: request.body.number
@@ -102,18 +96,28 @@ app.put('/api/persons/:id', async (request, response) => {
       context: 'query',    // needed for some validators in updates
       upsert: false        // do not create a new doc if not found
     });
-
+    
     if (!updated) {
       return response.status(404).json({ error: `Person with id ${id} not found` });
     }
+    */
 
-    response.json(updated);
-  } catch (err) {
-    // If id is malformed, Mongoose will throw a CastError → 400
-    response.status(400).json({ error: err.message });
-  }
+    Person.findById(id)
+      .then(person => {
+        if (!person) {
+          return response.status(404).json({ error: `Person with id ${id} not found` });
+        }
+
+        person.name = name
+        person.number = number
+
+        return person.save().then((updatedPerson) => {
+          response.json(updatedPerson)
+        })
+      })
+      .catch(error => next(error))
+
 });
-
 
 app.delete('/api/persons/:id', async (request, response) => {
   try {
@@ -122,13 +126,28 @@ app.delete('/api/persons/:id', async (request, response) => {
       return response.status(404).json({ error: `Person with id ${request.params.id} not found` });
     }
     response.status(204).end(); // No content
-  } catch (err) {
-    response.status(400).json({ error: err.message });
+  } catch (error) {
+    next(error)
   }
 
 })
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
 app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
