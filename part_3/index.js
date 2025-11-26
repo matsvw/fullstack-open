@@ -28,8 +28,8 @@ let persons = [
 ]
 
 const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => Number(n.id)))
+  const maxId = persons.length > 0
+    ? Math.max(...persons.map(n => Number(n.id)))
     : 0
   return String(maxId + 1)
 }
@@ -49,14 +49,14 @@ app.get('/api/persons', (request, response) => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  if (!body.content) {
+  if (!body.name) {
     return response.status(400).json({ 
-      error: 'Content missing' 
+      error: 'Name missing' 
     })
   }
 
   const person = {
-    name: body.content,
+    name: body.name,
     number: body.number,
     id: generateId(),
   }

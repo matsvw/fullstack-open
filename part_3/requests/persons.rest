@@ -1,4 +1,4 @@
-GET http://localhost:3001/api/persons/10
+GET http://localhost:3001/api/persons
 
 ###
 
@@ -13,3 +13,7 @@ Content-Type: application/json
   "name": "This is a new person",
   "number": "123-4567890"
 }
+
+###
+
+DELETE http://localhost:3001/api/persons/5
