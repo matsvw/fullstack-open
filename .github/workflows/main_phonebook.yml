@@ -22,12 +22,19 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '24.x'
+          cache: 'npm'
+          cache-dependency-path: part_3/package-lock.json
 
-      - name: Upload artifact for deployment job
+      - name: Install dependencies
+        working-directory: part_3
+        run: npm ci
+
+      - name: Upload artifact for deployment job (part_3 only)
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: part_3
+
 
   deploy:
     runs-on: ubuntu-latest
