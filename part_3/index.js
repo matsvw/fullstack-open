@@ -28,10 +28,14 @@ let persons = [
 ]
 
 const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(n => Number(n.id)))
-    : 0
-  return String(maxId + 1)
+  let valid=false
+  while (!valid) {
+    const id = Math.floor(Math.random() * 1000000) + 1;
+    if (!persons.find(p => p.id === id)) {
+      valid=true
+      return id
+    } 
+  }
 }
 
 app.get('/', (request, response) => {
