@@ -35,7 +35,11 @@ const generateId = () => {
 }
 
 app.get('/', (request, response) => {
-  response.send('<h1>Hello World!</h1>')
+  response.send('<p>Welcome to the Phonebook API</p>')
+})
+
+app.get('/info', (request, response) => {
+  response.send(`<p>Phonebook has info for ${persons.length} people</p><br /><p>${new Date()}</p>`)
 })
 
 app.get('/api/persons', (request, response) => {
