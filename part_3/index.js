@@ -51,7 +51,7 @@ app.post('/api/persons', (request, response) => {
 
   if (!body.content) {
     return response.status(400).json({ 
-      error: 'content missing' 
+      error: 'Content missing' 
     })
   }
 
@@ -72,7 +72,7 @@ app.get('/api/persons/:id', (request, response) => {
   if (person) {
     response.json(person)
   } else {
-    response.status(404).end()
+    response.status(404).json({error: `Person with id ${id} not found`}).end()
   }
 })
 
