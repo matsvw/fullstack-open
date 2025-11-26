@@ -1,28 +1,21 @@
 
 const express = require('express')
 const morgan = require('morgan')
+//const cors = require('cors')
 
 const app = express()
-
-const requestLogger = (request, response, next) => {
-  console.log('Method:', request.method)
-  console.log('Path:  ', request.path)
-  console.log('Body:  ', request.body)
-  console.log('---')
-  next()
-}
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
+//app.use(cors())
+app.use(express.static('dist'))
 app.use(express.json())
-//app.use(morgan('tiny'))
 
 morgan.token('body', (req) => JSON.stringify(req.body))
+//app.use(morgan('tiny'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
-
-//app.use(requestLogger)
 
 let persons = [
     { 
@@ -44,7 +37,12 @@ let persons = [
       "id": "4",
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
-    }
+    },
+    { 
+      "id": "5",
+      "name": "Mats von Weissenberg", 
+      "number": "0400 123456"
+    }    
 ]
 
 const generateId = () => {
