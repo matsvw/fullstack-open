@@ -67,4 +67,21 @@ describe('total likes', () => {
     })
   })
 
+  describe('most active and liked authors', () => {
+    test('find author with most blogs', () => {
+      // add mostLikedBlog, the author of that will also have most blogs from the set
+      const blogs = [...blogList, mostLikedBlog]
+      const result = listHelper.mostBlogs(blogs)
+      assert.strictEqual(result.author, mostLikedBlog.author)
+      assert.strictEqual(result.blogs, 3)
+    })
+    test('find most liked author', () => {
+      // add mostLikedBlog, the author of that will be the most liked from the set
+      const blogs = [...blogList, mostLikedBlog]
+      const result = listHelper.mostLikes(blogs)
+      assert.strictEqual(result.author, mostLikedBlog.author)
+      assert(result.likes > mostLikedBlog.likes, 'Total likes should be larger than likes for most liked blog')
+    })
+  })
+
 })

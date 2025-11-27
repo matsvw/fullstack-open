@@ -1,4 +1,5 @@
 const logger = require('./logger')
+const lodash = require('lodash')
 
 const dummy = (blogs) => {
   logger.info(blogs)
@@ -21,8 +22,30 @@ const favoriteBlog = (blogs) => {
   return mostLikes
 }
 
+const mostLikes = (blogs) => {
+  // lodash feels like LINQ from C#
+  const topAuthor = lodash(blogs)
+    .groupBy('author')
+    .map((items, author) => ({ author, likes: lodash.sumBy(items, 'likes') }))
+    .maxBy('likes')
+
+  return topAuthor
+}
+
+const mostBlogs = (blogs) => {
+  // lodash feels like LINQ from C#
+  const topAuthor = lodash(blogs)
+    .groupBy('author')
+    .map((items, author) => ({ author, blogs: items.length }))
+    .maxBy('blogs')
+
+  return topAuthor
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostLikes,
+  mostBlogs
 }
