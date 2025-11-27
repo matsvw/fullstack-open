@@ -26,16 +26,28 @@ jobs:
           node-version: '24.x'
           cache: 'npm'
           cache-dependency-path: part_3/package-lock.json
-
+      
       - name: Install dependencies
         working-directory: part_3
         run: npm ci
 
+      # Optional: Run build step if needed (skip if pure Node/Express)
+      - name: Build app
+        working-directory: part_3
+        run: npm run build
+
+      # Archive the app into a zip file
+      - name: Archive app
+        run: |
+          cd part_3
+          zip -r ../part_3.zip .
+  
       - name: Upload artifact for deployment job (part_3 only)
         uses: actions/upload-artifact@v4
         with:
-          name: node-app
-          path: part_3
+          name: node-app-zip
+          path: part_3.zip
+
 
   deploy:
     runs-on: ubuntu-latest
@@ -45,14 +57,13 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download artifact from build job
+      
+      # Download zip artifact
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-app
-          
-      - name: List files
-        run: ls -R
-          
+          name: node-app-zip
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -60,10 +71,14 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_980D92ED0BE24882B94CAF8F44D395DA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F3B3F14F24C4AEF8036B3C3A8CDC0A6 }}
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
+      # Deploy zip to Azure Web App
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'phonebook'
           slot-name: 'Production'
-          package: .
+          package: ./part_3.zip
+    
+
+
+          
