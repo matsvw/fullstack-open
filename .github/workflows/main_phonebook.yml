@@ -63,5 +63,5 @@ jobs:
         with:
           app-name: 'phonebook'
           slot-name: 'Production'
-          package: .
+          package: ./part_3
           

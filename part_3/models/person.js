@@ -6,8 +6,9 @@ const clientOptions = { serverApi: { version: '1', strict: true, deprecationErro
 // Create a Mongoose client with a MongoClientOptions object to set the Stable API version
 console.log('connecting to', uri)
 mongoose.connect(uri, clientOptions)
+  // eslint-disable-next-line no-unused-vars
   .then(result => {
-    console.log(result)
+    //console.log(result)
     console.log('connected to MongoDB')
   })
   .catch(error => {
