@@ -1,14 +1,16 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
+// TODO - this file still needs to be checked and updated as necessary
+
 blogsRouter.get('/', (request, response) => {
-  Note.find({}).then(blogs => {
+  Blog.find({}).then(blogs => {
     response.json(blogs)
   })
 })
 
 blogsRouter.get('/:id', (request, response, next) => {
-  Note.findById(request.params.id)
+  Blog.findById(request.params.id)
     .then(note => {
       if (note) {
         response.json(note)
@@ -22,12 +24,12 @@ blogsRouter.get('/:id', (request, response, next) => {
 blogsRouter.post('/', (request, response, next) => {
   const body = request.body
 
-  const note = new Note({
+  const blog = new Blog({
     content: body.content,
     important: body.important || false,
   })
 
-  note.save()
+  blog.save()
     .then(savedNote => {
       response.json(savedNote)
     })
@@ -35,7 +37,7 @@ blogsRouter.post('/', (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', (request, response, next) => {
-  Note.findByIdAndDelete(request.params.id)
+  Blog.findByIdAndDelete(request.params.id)
     .then(() => {
       response.status(204).end()
     })
@@ -45,16 +47,16 @@ blogsRouter.delete('/:id', (request, response, next) => {
 blogsRouter.put('/:id', (request, response, next) => {
   const { content, important } = request.body
 
-  Note.findById(request.params.id)
+  Blog.findById(request.params.id)
     .then(note => {
       if (!note) {
         return response.status(404).end()
       }
 
-      note.content = content
-      note.important = important
+      Blog.content = content
+      Blog.important = important
 
-      return note.save().then((updatedNote) => {
+      return Blog.save().then((updatedNote) => {
         response.json(updatedNote)
       })
     })
