@@ -15,7 +15,6 @@ mongoose.connect(uri, clientOptions)
   })
 
 
-// TODO - this schema needs to be updated as necessary
 const blogSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -24,13 +23,22 @@ const blogSchema = new mongoose.Schema({
   },
   author: {
     type: String,
+    minLength: 3,
+    required: true
+  },
+  url: {
+    type: String,
     validate: {
       validator: function (v) {
-        return /(?:\d{2}-\d{6,}|\d{3}-\d{5,})/.test(v)
+        return /(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/\S*)?$/.test(v)
       },
-      message: props => `${props.value} is not a valid phone number!`
+      message: props => `${props.value} is not a valid URL!`
     },
     required: true
+  },
+  likes: {
+    type: Number,
+    default: 0
   }
 })
 
