@@ -14,13 +14,13 @@ mongoose.connect(uri, clientOptions)
     console.log('error connecting to MongoDB:', error.message)
   })
 
-const personSchema = new mongoose.Schema({
-  name: {
+const blogSchema = new mongoose.Schema({
+  title: {
     type: String,
     minLength: 3,
     required: true
   },
-  number: {
+  author: {
     type: String,
     validate: {
       validator: function (v) {
@@ -32,7 +32,7 @@ const personSchema = new mongoose.Schema({
   }
 })
 
-personSchema.set('toJSON', {
+blogSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
