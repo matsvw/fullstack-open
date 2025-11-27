@@ -21,13 +21,14 @@ app.get('/', (request, response) => {
 
 app.get('/info', async (request, response) => {
   try {
-    const count = await Person.countDocuments({});
+    const count = await Person.countDocuments({})
     response.send(`
       <p>Phonebook has info for ${count} people</p>
       <p>${new Date()}</p>
-    `);
+    `)
   } catch (err) {
-    response.status(500).send('Error fetching count');
+    console.error(err)
+    response.status(500).send('Error fetching count')
   }
 
 })
@@ -48,9 +49,9 @@ app.post('/api/persons', async (request, response, next) => {
     })
   }
 
-  const existingPerson = await Person.findOne({ name: body.name });
+  const existingPerson = await Person.findOne({ name: body.name })
   if (existingPerson) {
-    return response.status(400).json({ error: 'Name must be unique' });
+    return response.status(400).json({ error: 'Name must be unique' })
   }
 
   const person = new Person({
@@ -71,9 +72,9 @@ app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(id)
     .then(person => {
       if (person) {
-        response.json(person);
+        response.json(person)
       } else {
-        response.status(404).json({ error: `Person with id ${id} not found` });
+        response.status(404).json({ error: `Person with id ${id} not found` })
       }
     })
     .catch(error => next(error))
@@ -82,7 +83,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.put('/api/persons/:id', async (request, response, next) => {
 
-  const { id } = request.params;
+  const { id } = request.params
   const { name, number } = request.body
 
   /* Keeping as example of alternative update method
@@ -98,7 +99,7 @@ app.put('/api/persons/:id', async (request, response, next) => {
     context: 'query',    // needed for some validators in updates
     upsert: false        // do not create a new doc if not found
   });
-  
+
   if (!updated) {
     return response.status(404).json({ error: `Person with id ${id} not found` });
   }
@@ -107,7 +108,7 @@ app.put('/api/persons/:id', async (request, response, next) => {
   Person.findById(id)
     .then(person => {
       if (!person) {
-        return response.status(404).json({ error: `Person with id ${id} not found` });
+        return response.status(404).json({ error: `Person with id ${id} not found` })
       }
 
       person.name = name
@@ -119,15 +120,15 @@ app.put('/api/persons/:id', async (request, response, next) => {
     })
     .catch(error => next(error))
 
-});
+})
 
 app.delete('/api/persons/:id', async (request, response, next) => {
   try {
-    const deletedPerson = await Person.findByIdAndDelete(request.params.id);
+    const deletedPerson = await Person.findByIdAndDelete(request.params.id)
     if (!deletedPerson) {
-      return response.status(404).json({ error: `Person with id ${request.params.id} not found` });
+      return response.status(404).json({ error: `Person with id ${request.params.id} not found` })
     }
-    response.status(204).end(); // No content
+    response.status(204).end() // No content
   } catch (error) {
     next(error)
   }
