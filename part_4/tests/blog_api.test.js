@@ -114,9 +114,25 @@ describe('blog CRUD tests', () => {
     blogsAdded--
   })
 
-  test('blog without content is not added', async () => {
+  test('blog without url is not added', async () => {
     const newBlog = {
-      title: ''
+      title: 'Testing',
+      author: 'Timo Testaaja',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length+blogsAdded)
+  })
+
+  test('blog without title is not added', async () => {
+    const newBlog = {
+      author: 'Timo Testaaja',
+      url: 'https://dummy.org',
     }
 
     await api
