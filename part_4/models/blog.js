@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
+const config = require('../utils/config')
 
-const uri = process.env.MONGODB_URI
+const uri = config.MONGODB_URI
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } }
 
 // Create a Mongoose client with a MongoClientOptions object to set the Stable API version
