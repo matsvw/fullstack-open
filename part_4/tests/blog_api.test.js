@@ -9,7 +9,7 @@ const helper = require('./test_helper')
 
 const api = supertest(app)
 
-let blogsAdded=0
+let blogsAdded = 0
 
 // using before intead of beforeEach as we can use the same data set through all tests
 before(async () => {
@@ -17,7 +17,7 @@ before(async () => {
   await Blog.insertMany(helper.blogList)
 })
 
-describe('blog CRUD tests', () => {
+describe('initial tests retrieving blogs', () => {
   test('total number of blogs returned with GET is correct', async () => {
     const response = await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/)
 
@@ -29,10 +29,13 @@ describe('blog CRUD tests', () => {
     const expectedBlog = blogsAtStart.at(-1) // check last
     const response = await api.get(`/api/blogs/${expectedBlog.id}`).expect(200)
 
-    assert.deepStrictEqual(response.body,expectedBlog)
+    assert.deepStrictEqual(response.body, expectedBlog)
     assert(expectedBlog.id && !expectedBlog._id, 'Blog from DB does not expose correct id field')
     assert(response.body.id && !response.body._id, 'Blog from API does not expose correct id field')
   })
+})
+
+describe('adding a new blog', () => {
 
   test('a valid blog can be added', async () => {
     const title = `API POST test: ${Date.now()}`
@@ -85,6 +88,40 @@ describe('blog CRUD tests', () => {
 
   })
 
+  test('blog without url is not added', async () => {
+    const newBlog = {
+      title: 'Testing',
+      author: 'Timo Testaaja',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded)
+  })
+
+  test('blog without title is not added', async () => {
+    const newBlog = {
+      author: 'Timo Testaaja',
+      url: 'https://dummy.org',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded)
+  })
+
+})
+
+describe('update blog', () => {
+
   test('update existing blog', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const oldBlog = blogsAtStart.at(-1)
@@ -102,47 +139,22 @@ describe('blog CRUD tests', () => {
 
     const savedBlog = blogsAtEnd.find(b => b.title === newTitle)
     assert(savedBlog, 'Updated blog not found with new title')
-    assert(savedBlog.id===oldBlog.id, `ID of updated blog does not match: ${savedBlog.id} != ${oldBlog.id}`)
+    assert(savedBlog.id === oldBlog.id, `ID of updated blog does not match: ${savedBlog.id} != ${oldBlog.id}`)
   })
+
+})
+
+describe('delete blog', () => {
 
   test('delete one and check count', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
     await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
     const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded-1) // we have added and removed one, so the length should be the same
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded - 1) // we have added and removed one, so the length should be the same
     blogsAdded--
   })
 
-  test('blog without url is not added', async () => {
-    const newBlog = {
-      title: 'Testing',
-      author: 'Timo Testaaja',
-    }
-
-    await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(400)
-
-    const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.blogList.length+blogsAdded)
-  })
-
-  test('blog without title is not added', async () => {
-    const newBlog = {
-      author: 'Timo Testaaja',
-      url: 'https://dummy.org',
-    }
-
-    await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(400)
-
-    const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.blogList.length+blogsAdded)
-  })
 })
 
 after(async () => {
