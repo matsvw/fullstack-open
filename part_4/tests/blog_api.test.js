@@ -22,12 +22,14 @@ describe('blog CRUD tests', () => {
     assert.strictEqual(response.body.length, helper.blogList.length)
   })
 
-  test('get one and check content', async () => {
+  test('get one and check content (incl. id)', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const expectedBlog = blogsAtStart.at(-1) // check last
     const response = await api.get(`/api/blogs/${expectedBlog.id}`).expect(200)
 
     assert.deepStrictEqual(response.body,expectedBlog)
+    assert(expectedBlog.id && !expectedBlog._id, 'Blog from DB does not expose correct id field')
+    assert(response.body.id && !response.body._id, 'Blog from API does not expose correct id field')
   })
 
   test('a valid blog can be added', async () => {
