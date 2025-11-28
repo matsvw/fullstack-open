@@ -9,6 +9,8 @@ const helper = require('./test_helper')
 
 const api = supertest(app)
 
+let blogsAdded=0
+
 // using before intead of beforeEach as we can use the same data set through all tests
 before(async () => {
   await Blog.deleteMany({})
@@ -50,7 +52,33 @@ describe('blog CRUD tests', () => {
     assert.deepStrictEqual(resultBlog.body, { ...newBlog, id: resultBlog.body.id })
 
     const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + 1)
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded + 1)
+    blogsAdded++
+
+    const contents = blogsAtEnd.map(b => b.title)
+    assert(contents.includes(title))
+
+  })
+
+  test('likes defaults to zero', async () => {
+    const title = `API POST default likes test: ${Date.now()}`
+    const newBlog = {
+      title: title,
+      author: 'Timo Testaaja',
+      url: 'https://dummy.org',
+    }
+
+    const resultBlog = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    assert.deepStrictEqual(resultBlog.body, { ...newBlog, id: resultBlog.body.id, likes: 0 })
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded + 1)
+    blogsAdded++
 
     const contents = blogsAtEnd.map(b => b.title)
     assert(contents.includes(title))
@@ -70,7 +98,7 @@ describe('blog CRUD tests', () => {
       .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + 1)
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded)
 
     const savedBlog = blogsAtEnd.find(b => b.title === newTitle)
     assert(savedBlog, 'Updated blog not found with new title')
@@ -82,7 +110,8 @@ describe('blog CRUD tests', () => {
     const blogToDelete = blogsAtStart[0]
     await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
     const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.blogList.length) // we have added and removed one, so the length should be the same
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded-1) // we have added and removed one, so the length should be the same
+    blogsAdded--
   })
 
   test('blog without content is not added', async () => {
@@ -96,7 +125,7 @@ describe('blog CRUD tests', () => {
       .expect(400)
 
     const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.blogList.length)
+    assert.strictEqual(blogsAtEnd.length, helper.blogList.length+blogsAdded)
   })
 })
 
