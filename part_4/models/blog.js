@@ -1,20 +1,4 @@
 const mongoose = require('mongoose')
-const config = require('../utils/config')
-
-const uri = config.MONGODB_URI
-const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } }
-
-// Create a Mongoose client with a MongoClientOptions object to set the Stable API version
-console.log('connecting to', uri)
-mongoose.connect(uri, clientOptions)
-  // eslint-disable-next-line no-unused-vars
-  .then(result => {
-    console.log('connected to MongoDB')
-  })
-  .catch(error => {
-    console.log('error connecting to MongoDB:', error.message)
-  })
-
 
 const blogSchema = new mongoose.Schema({
   title: {
@@ -40,6 +24,11 @@ const blogSchema = new mongoose.Schema({
   likes: {
     type: Number,
     default: 0
+  },
+  // TODO - does this make any sense?
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 })
 
