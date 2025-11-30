@@ -4,15 +4,23 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const logger = require('../utils/logger')
 const Blog = require('../models/blog')
+//const User = require('../models/blog')
 const helper = require('./test_helper')
 
 const api = supertest(app)
 
 let blogsAdded = 0
+const prefix = 'blog_test_'
 
-// using before intead of beforeEach as we can use the same data set through all tests
+// using before instead of beforeEach as we can use the same data set through all tests
 before(async () => {
+  const userId = await helper.createDefaultUser(prefix,false) // cleaning db is not needed for this test
+  logger.info(userId)
+  for (const blog of helper.blogList) { //update blog list with correct default user
+    blog.user = userId
+  }
   await Blog.deleteMany({})
   await Blog.insertMany(helper.blogList)
 })
@@ -29,6 +37,9 @@ describe('initial tests retrieving blogs', () => {
     const expectedBlog = blogsAtStart.at(-1) // check last
     const response = await api.get(`/api/blogs/${expectedBlog.id}`).expect(200)
 
+    // Normalize user field so that strict comparison does not fail (string vs objectId)
+    expectedBlog.user = expectedBlog.user.toString()
+
     assert.deepStrictEqual(response.body, expectedBlog)
     assert(expectedBlog.id && !expectedBlog._id, 'Blog from DB does not expose correct id field')
     assert(response.body.id && !response.body._id, 'Blog from API does not expose correct id field')
@@ -43,7 +54,8 @@ describe('adding a new blog', () => {
       title: title,
       author: 'Timo Testaaja',
       url: 'https://dummy.org',
-      likes: 0
+      likes: 0,
+      userId: helper.blogList[0].user
     }
 
     const resultBlog = await api
@@ -52,7 +64,10 @@ describe('adding a new blog', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    assert.deepStrictEqual(resultBlog.body, { ...newBlog, id: resultBlog.body.id })
+
+    // eslint-disable-next-line no-unused-vars
+    const { userId, ...expectedBlog } = { ...newBlog, id: resultBlog.body.id, user: helper.blogList[0].user.toString() } //remove userId and add id + user
+    assert.deepStrictEqual(resultBlog.body, expectedBlog)
 
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded + 1)
@@ -69,6 +84,7 @@ describe('adding a new blog', () => {
       title: title,
       author: 'Timo Testaaja',
       url: 'https://dummy.org',
+      userId: helper.blogList[0].user
     }
 
     const resultBlog = await api
@@ -77,7 +93,9 @@ describe('adding a new blog', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    assert.deepStrictEqual(resultBlog.body, { ...newBlog, id: resultBlog.body.id, likes: 0 })
+    // eslint-disable-next-line no-unused-vars
+    const { userId, ...expectedBlog } = { ...newBlog, id: resultBlog.body.id, user: helper.blogList[0].user.toString(), likes: 0 } //remove userId and add id, user and likes
+    assert.deepStrictEqual(resultBlog.body, expectedBlog)
 
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded + 1)

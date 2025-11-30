@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 
-usersRouter.get('/blogs', async (request, response) => {
+usersRouter.get('/', async (request, response) => {
   const expand = request.query.expand === 'true'
 
   let users

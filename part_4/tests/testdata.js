@@ -1,4 +1,10 @@
 
+const defaultUser = {
+  username: 'testuser',
+  name: 'API test user',
+  password: 'secretpassword'
+}
+
 const singleBlog = {
   title: 'Go To Statement Considered Harmful',
   author: 'Edsger W. Dijkstra',
@@ -46,4 +52,4 @@ const blogList = [
   },
 ]
 
-module.exports = { singleBlog, mostLikedBlog, blogList }
+module.exports = { singleBlog, mostLikedBlog, blogList, defaultUser }
