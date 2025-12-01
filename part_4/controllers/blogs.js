@@ -1,5 +1,7 @@
 const blogsRouter = require('express').Router()
+
 const logger = require('../utils/logger')
+const { tokenValidator } = require('../utils/middleware')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
@@ -27,13 +29,15 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/',tokenValidator, async (request, response, next) => {
   try {
+
     const body = request.body
 
-    const user = await User.findById(body.userId)
+    const authUser = request.user
+    const blogUser = (await User.findById(body.userId)) ?? authUser //default to authenticated user if userId is missing or invalid
 
-    if (!user) {
+    if (!blogUser) {
       return response.status(400).json({ error: 'userId missing or not valid' })
     }
     logger.info('post blog - valid user found')
@@ -43,12 +47,12 @@ blogsRouter.post('/', async (request, response, next) => {
       author: body.author,
       url: body.url,
       likes: body.likes || 0,
-      user: user._id
+      user: blogUser._id
     })
 
     const savedBlog = await blog.save()
-    user.blogs = user.blogs.concat(savedBlog._id)
-    await user.save()
+    blogUser.blogs = blogUser.blogs.concat(savedBlog._id)
+    await blogUser.save()
     response.status(201).json(savedBlog)
 
   }
