@@ -63,6 +63,50 @@ describe('when there is initially one user in db', () => {
 
 })
 
+describe('validate user data', () => {
+  test('creation fails with proper statuscode and message if username is too short', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'us',
+      name: `${prefix}$_tooshortusername`,
+      password: 'longpassword'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    assert(result.body.error.includes('is shorter than the minimum allowed length'))
+
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+  })
+
+  test('creation fails with proper statuscode and message if password is too short', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: `${prefix}$_tooshortpassword`,
+      name: 'longusername',
+      password: 'pw'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    assert(result.body.error.includes('password needs to be at least'))
+
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+  })
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
