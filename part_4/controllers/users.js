@@ -7,7 +7,7 @@ usersRouter.get('/', async (request, response) => {
 
   let users
   if (expand) {
-    users = await User.find({}).populate('blogs', { title: 1, author: 1 })
+    users = await User.find({}).populate('blogs', { url: 1, title: 1, author: 1 })
   } else {
     users = await User.find({})
   }
