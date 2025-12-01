@@ -8,15 +8,27 @@ const logger = require('../utils/logger')
 const Blog = require('../models/blog')
 //const User = require('../models/blog')
 const helper = require('./test_helper')
+const { defaultUser } = require('./testdata.js')
 
 const api = supertest(app)
 
 let blogsAdded = 0
+let validToken = ''
 const prefix = 'blog_test_'
 
 // using before instead of beforeEach as we can use the same data set through all tests
 before(async () => {
-  const userId = await helper.createDefaultUser(prefix,false) // cleaning db is not needed for this test
+  const userId = await helper.createDefaultUser(prefix, false) // cleaning db is not needed for this test
+
+  const tokenResponse = await api.post('/api/login').send(
+    {
+      'username': `${prefix}${defaultUser.username}`,
+      'password': defaultUser.password
+    })
+
+  validToken = tokenResponse.body.token
+  logger.info('token for tests: ', validToken)
+
   logger.info(userId)
   for (const blog of helper.blogList) { //update blog list with correct default user
     blog.user = userId
@@ -60,6 +72,7 @@ describe('adding a new blog', () => {
 
     const resultBlog = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${validToken}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -89,6 +102,7 @@ describe('adding a new blog', () => {
 
     const resultBlog = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${validToken}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -114,6 +128,7 @@ describe('adding a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${validToken}`)
       .send(newBlog)
       .expect(400)
 
@@ -129,6 +144,7 @@ describe('adding a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${validToken}`)
       .send(newBlog)
       .expect(400)
 
@@ -148,6 +164,7 @@ describe('update blog', () => {
     oldBlog.title = newTitle
     await api
       .put(`/api/blogs/${oldBlog.id}`)
+      .set('Authorization', `Bearer ${validToken}`)
       .send(oldBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -167,7 +184,10 @@ describe('delete blog', () => {
   test('delete one and check count', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${validToken}`)
+      .expect(204)
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded - 1) // we have added and removed one, so the length should be the same
     blogsAdded--

@@ -61,12 +61,12 @@ blogsRouter.post('/',tokenValidator, async (request, response, next) => {
   }
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
+blogsRouter.delete('/:id', tokenValidator, async (request, response) => {
   await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
 
-blogsRouter.put('/:id', async (request, response, next) => {
+blogsRouter.put('/:id', tokenValidator, async (request, response, next) => {
   try {
     const { title, author, url, likes } = request.body
 
