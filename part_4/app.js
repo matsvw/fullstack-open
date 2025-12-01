@@ -26,6 +26,8 @@ mongoose.connect(uri, clientOptions)
 app.use(express.static('dist'))
 app.use(express.json())
 app.use(middleware.requestLogger)
+// with my implementation, the token is automatically validated, so we do not want it before all routes, but instead we inject it as needed
+//app.use(middleware.tokenValidator)
 
 app.use('/api/login', loginRouter)
 app.use('/api/blogs', blogsRouter)
