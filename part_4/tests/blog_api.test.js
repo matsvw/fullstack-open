@@ -103,6 +103,24 @@ describe('adding a new blog', () => {
 
   })
 
+  test('adding fails if token is missing', async () => {
+    const title = `API POST test: ${Date.now()}`
+    const newBlog = {
+      title: title,
+      author: 'Timo Testaaja',
+      url: 'https://dummy.org',
+      likes: 0,
+      userId: helper.blogList[0].user
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+  })
+
   test('likes defaults to zero', async () => {
     const title = `API POST default likes test: ${Date.now()}`
     const newBlog = {
