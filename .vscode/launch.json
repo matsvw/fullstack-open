@@ -48,6 +48,39 @@
             ],
             "cwd": "${workspaceFolder}/part_3",
             "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug part_5_backend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "start"
+            ],
+            "cwd": "${workspaceFolder}/part_5_backend",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug part_5_frontend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ], // assuming "dev" runs Vite
+            "cwd": "${workspaceFolder}/part_5_frontend",
+            "console": "integratedTerminal"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug part 5 (UI+BFF)",
+            "configurations": [
+                "Debug part_5_backend",
+                "Debug part_5_frontend"
+            ]
         }
     ]
 }
