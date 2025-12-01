@@ -29,7 +29,7 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 })
 
-blogsRouter.post('/',tokenValidator, async (request, response, next) => {
+blogsRouter.post('/', tokenValidator, async (request, response, next) => {
   try {
 
     const body = request.body
@@ -62,17 +62,31 @@ blogsRouter.post('/',tokenValidator, async (request, response, next) => {
 })
 
 blogsRouter.delete('/:id', tokenValidator, async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id)
+
+  const authUser = request.user
+  const blogToDelete = await Blog.findById(request.params.id)
+
+  if (blogToDelete.user.toString() !== authUser.id) {
+    return response.status(403).json({ error: 'only the creator is allowed to delete a blog' })
+  }
+
+  await Blog.deleteOne(blogToDelete)
+  //await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
 
 blogsRouter.put('/:id', tokenValidator, async (request, response, next) => {
   try {
+    const authUser = request.user
     const { title, author, url, likes } = request.body
 
     const oldBlog = await Blog.findById(request.params.id)
     if (!oldBlog) {
       return response.status(404).end()
+    }
+
+    if (oldBlog.user.toString() !== authUser.id) {
+      return response.status(403).json({ error: 'only the creator is allowed to update a blog' })
     }
 
     oldBlog.title = title

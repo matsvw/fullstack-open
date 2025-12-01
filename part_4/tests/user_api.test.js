@@ -4,7 +4,8 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-//const User = require('../models/user')
+const logger = require('../utils/logger')
+const User = require('../models/user')
 const helper = require('./test_helper')
 const { defaultUser } = require('./testdata.js')
 
@@ -13,19 +14,21 @@ const api = supertest(app)
 const prefix = 'user_test_'
 
 before(async () => {
-  await helper.createDefaultUser(prefix)
+  await helper.createDefaultUser(prefix, false) // do not clean users as concurrent tests will fail
 })
 
 describe('when there is initially one user in db', () => {
 
   test('creation succeeds with a fresh username', async () => {
-    const usersAtStart = await helper.usersInDb()
-
     const newUser = {
       username: 'mluukkai',
       name: 'Matti Luukkainen',
       password: 'salainen',
     }
+
+    await User.deleteMany({ username: newUser.username }) // remove any old instance of the user
+
+    const usersAtStart = await helper.usersInDb()
 
     await api
       .post('/api/users')
@@ -69,7 +72,7 @@ describe('validate user data', () => {
 
     const newUser = {
       username: 'us',
-      name: `${prefix}$_tooshortusername`,
+      name: `${prefix}_tooshortusername`,
       password: 'longpassword'
     }
 
@@ -89,7 +92,7 @@ describe('validate user data', () => {
     const usersAtStart = await helper.usersInDb()
 
     const newUser = {
-      username: `${prefix}$_tooshortpassword`,
+      username: `${prefix}_tooshortpassword`,
       name: 'longusername',
       password: 'pw'
     }

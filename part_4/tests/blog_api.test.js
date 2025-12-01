@@ -13,21 +13,33 @@ const { defaultUser } = require('./testdata.js')
 const api = supertest(app)
 
 let blogsAdded = 0
-let validToken = ''
+let validToken
+let invalidToken
 const prefix = 'blog_test_'
+const invalidPrefix = 'blog_test_invalid'
 
 // using before instead of beforeEach as we can use the same data set through all tests
 before(async () => {
-  const userId = await helper.createDefaultUser(prefix, false) // cleaning db is not needed for this test
+  const userId = await helper.createDefaultUser(prefix, false) // do not clean users as concurrent tests will fail
+  await helper.createDefaultUser(invalidPrefix, false) // do not clean users as concurrent tests will fail
 
-  const tokenResponse = await api.post('/api/login').send(
+  const validTokenResponse = await api.post('/api/login').send(
     {
       'username': `${prefix}${defaultUser.username}`,
       'password': defaultUser.password
     })
 
-  validToken = tokenResponse.body.token
-  logger.info('token for tests: ', validToken)
+  validToken = validTokenResponse.body.token
+  logger.info('valid token for tests: ', validToken)
+
+  const invalidTokenResponse = await api.post('/api/login').send(
+    {
+      'username': `${invalidPrefix}${defaultUser.username}`,
+      'password': defaultUser.password
+    })
+
+  invalidToken = invalidTokenResponse.body.token
+  logger.info('invalidvalid token for tests: ', invalidToken)
 
   logger.info(userId)
   for (const blog of helper.blogList) { //update blog list with correct default user
@@ -177,6 +189,20 @@ describe('update blog', () => {
     assert(savedBlog.id === oldBlog.id, `ID of updated blog does not match: ${savedBlog.id} != ${oldBlog.id}`)
   })
 
+  test('only the creator is allowed to update', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const oldBlog = blogsAtStart.at(-1)
+    const newTitle = `API PUT test: ${Date.now()}`
+
+    oldBlog.title = newTitle
+    await api
+      .put(`/api/blogs/${oldBlog.id}`)
+      .set('Authorization', `Bearer ${invalidToken}`)
+      .send(oldBlog)
+      .expect(403)
+      .expect('Content-Type', /application\/json/)
+  })
+
 })
 
 describe('delete blog', () => {
@@ -191,6 +217,16 @@ describe('delete blog', () => {
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual(blogsAtEnd.length, helper.blogList.length + blogsAdded - 1) // we have added and removed one, so the length should be the same
     blogsAdded--
+  })
+
+  test('only the creator is allowed to delete', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${invalidToken}`)
+      .expect(403)
+      .expect('Content-Type', /application\/json/)
   })
 
 })
