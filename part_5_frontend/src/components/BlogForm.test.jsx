@@ -9,9 +9,9 @@ beforeAll(() => {
   vi.spyOn(window, 'confirm').mockImplementation(() => true) // Mock window.confirm to always return true
 })
 
-describe('<Blog />', () => {
+describe('<BlogForm />', () => {
 
-  test('<renders content>', async () => {
+  test('renders content', async () => {
 
     const mockCreatedHandler = vi.fn()
     const mockTimeoutMessage = vi.fn()
