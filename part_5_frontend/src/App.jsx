@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 
 import blogService from './services/blogs'
@@ -67,48 +68,59 @@ const App = () => {
     window.localStorage.removeItem(loginCookieName)
   }
 
+  const handleBlogCreated = (newBlog) => {
+    setBlogs(blogs.concat(newBlog))
+    setTimeoutMsg(`a new blog "${newBlog.title}" by ${newBlog.author} added`, false)
+  }
+
   const loginForm = () => {
     if (user) {
       return (
-      <div>
-        <p>{user.name} logged in</p>
-        <button onClick={handeLogout}>logout</button>
-      </div>
+        <div>
+          <p>{user.name} logged in</p>
+          <button onClick={handeLogout}>logout</button>
+        </div>
       )
     }
     return (
-    <form onSubmit={handleLogin}>
-      <div>
-        <label>
-          username
-          <input
-            type="text"
-            autoComplete="username"
-            value={username}
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          password
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </label>
-      </div>
-      <button type="submit">login</button>
-    </form>
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>
+            username
+            <input
+              type="text"
+              autoComplete="username"
+              value={username}
+              onChange={({ target }) => setUsername(target.value)}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            password
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={({ target }) => setPassword(target.value)}
+            />
+          </label>
+        </div>
+        <button type="submit">login</button>
+      </form>
     )
   }
 
   const blogList = () => {
     if (user) {
-      return blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      return (
+        <div>
+          <BlogForm setTimeoutMessage={setTimeoutMsg} handleBlogCreated={handleBlogCreated} />
+          <br />
+          {blogs.map(blog =>
+            <Blog key={blog.id} blog={blog} />
+          )}
+        </div>
       )
     }
   }
