@@ -21,8 +21,13 @@ const Blog = ({ blog, handleBlogUpdated, setTimeoutMessage, }) => {
 
   return (
     <div className="blogStyle">
-      <b>{blog.title}</b>
-      <input type="button" value={showDetails ? "hide" : "view"} onClick={() => setShowDetails(!showDetails)} style={{ float: "right" }} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} >
+        <b>{blog.title}</b>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <p style={{ margin: "0 30px 0 0" }} >{blog.likes}</p>
+          <input type="button" value={showDetails ? "hide" : "view"} onClick={() => setShowDetails(!showDetails)} />
+        </div>
+      </div>
       {showDetails &&
         <div>
           <div>{blog.author}</div>

@@ -17,6 +17,7 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const [infoMessage, setInfoMessage] = useState(null)
+  const [sortAscending, setSortAscending] = useState(true)
 
   const setTimeoutMsg = (message, isError = true) => {
     if (isError) {
@@ -32,9 +33,18 @@ const App = () => {
     }
   }
 
+  const sortBlogsByLikes = () => {
+    const sortedBlogs = [...blogs].sort((a, b) => {
+      return sortAscending ? a.likes - b.likes : b.likes - a.likes
+    })
+    setBlogs(sortedBlogs)
+    setSortAscending(!sortAscending)
+  }
+
   useEffect(() => {
     const fetchBlogs = async () => {
       const blogs = await blogService.getAllExpanded()
+      blogs.sort((a, b) => b.likes - a.likes)
       setBlogs(blogs)
     }
     fetchBlogs()
@@ -124,13 +134,19 @@ const App = () => {
     if (user) {
       return (
         <div>
-          <Togglable buttonLabel="new blog" ref={blogFormRef}>
-            <BlogForm setTimeoutMessage={setTimeoutMsg} handleBlogCreated={handleBlogCreated} />
-            <br />
-          </Togglable>
+          <div style={{ display: 'grid', gridTemplateColumns: '50% 50%', gap: '10px', maxWidth: '50%' }}>
+            <div>
+              <Togglable buttonLabel="new blog" ref={blogFormRef}>
+                <BlogForm setTimeoutMessage={setTimeoutMsg} handleBlogCreated={handleBlogCreated} />
+              </Togglable>
+            </div>
+            <div style={{ float: "right", textAlign: "right" }}>
+              <button onClick={sortBlogsByLikes}>sort likes {sortAscending ? 'ascending' : 'descending'}</button>
+            </div>
+          </div>
           <br />
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} handleBlogUpdated={handleBlogUpdated} setTimeoutMessage={setTimeoutMsg}/>
+            <Blog key={blog.id} blog={blog} handleBlogUpdated={handleBlogUpdated} setTimeoutMessage={setTimeoutMsg} />
           )}
         </div>
       )
