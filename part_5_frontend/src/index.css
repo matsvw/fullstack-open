@@ -28,3 +28,11 @@ h1, h2 {
   padding: 10px;
   margin-bottom: 10px;
 }
+
+.blogStyle {
+  padding: 10px;
+  border: solid;
+  border-width: 1px;
+  margin-bottom: 5px;
+  width: 50%;
+}
