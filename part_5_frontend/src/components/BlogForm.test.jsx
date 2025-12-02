@@ -11,22 +11,37 @@ beforeAll(() => {
 
 describe('<BlogForm />', () => {
 
+  const blogUser = {
+    name: 'Test User',
+    username: 'testuser'
+  }
+
   test('renders content', async () => {
 
     const mockCreatedHandler = vi.fn()
     const mockTimeoutMessage = vi.fn()
 
-    const blogUser = {
-      name: 'Test User',
-      username: 'testuser'
-    }
+    render(<BlogForm user={blogUser} handleBlogCreated={mockCreatedHandler} setTimeoutMessage={mockTimeoutMessage} />)
+    // user this to dump the rendered HTML to the console
+    //screen.debug()
+
+    // these will throw an error if the elements are not found
+    screen.getByLabelText(/title/i)
+    screen.getByLabelText(/author/i)
+    screen.getByLabelText(/url/i)
+
+  })
+
+  test('renders content', async () => {
+
+    const mockCreatedHandler = vi.fn()
+    const mockTimeoutMessage = vi.fn()
 
     const user = userEvent.setup()
 
     render(<BlogForm user={blogUser} handleBlogCreated={mockCreatedHandler} setTimeoutMessage={mockTimeoutMessage} />)
     // user this to dump the rendered HTML to the console
     screen.debug()
-
 
     const titleInput = screen.getByLabelText(/title/i)
     const authorInput = screen.getByLabelText(/author/i)
