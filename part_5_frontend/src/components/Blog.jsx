@@ -36,7 +36,7 @@ const Blog = ({ blog, user, handleBlogUpdated, handleBlogRemoved, setTimeoutMess
   }
 
   return (
-    <div className='blogStyle'>
+    <div className='blogStyle' id="blogentry">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
         <b>{blog.title}</b>
         <div style={{ display: 'flex', alignItems: 'center' }}>

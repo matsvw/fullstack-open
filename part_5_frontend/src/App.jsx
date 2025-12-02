@@ -100,7 +100,7 @@ const App = () => {
     if (user) {
       return (
         <div>
-          <p>{user.name} logged in</p>
+          <p>{`${user.name} logged in`}</p>
           <button onClick={handeLogout}>logout</button>
         </div>
       )
