@@ -76,8 +76,7 @@ const App = () => {
     }
   }
 
-  // eslint-disable-next-line no-unused-vars
-  const handeLogout = async event => {
+  const handeLogout = async () => {
     setUser(null)
     window.localStorage.removeItem(loginCookieName)
   }
