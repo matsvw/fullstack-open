@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Notification from './components/Notification'
+
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -10,6 +12,22 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [infoMessage, setInfoMessage] = useState(null)
+
+  const setTimeoutMsg = (message, isError = true) => {
+    if (isError) {
+      setErrorMessage(message)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    } else {
+      setInfoMessage(message)
+      setTimeout(() => {
+        setInfoMessage(null)
+      }, 5000)
+    }
+  }
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -22,7 +40,7 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
-      noteService.setToken(user.token)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -32,31 +50,40 @@ const App = () => {
     try {
       const user = await loginService.login({ username, password })
 
-      window.localStorage.setItem(loginCookieName, JSON.stringify(user)) 
+      window.localStorage.setItem(loginCookieName, JSON.stringify(user))
       blogService.setToken(user.token)
-      
+
       setUser(user)
       setUsername('')
       setPassword('')
     } catch {
-      setErrorMessage('wrong credentials')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      setTimeoutMsg('wrong credentials', true)
     }
   }
 
+  // eslint-disable-next-line no-unused-vars
   const handeLogout = async event => {
+    setUser(null)
     window.localStorage.removeItem(loginCookieName)
   }
 
-  const loginForm = () => (
+  const loginForm = () => {
+    if (user) {
+      return (
+      <div>
+        <p>{user.name} logged in</p>
+        <button onClick={handeLogout}>logout</button>
+      </div>
+      )
+    }
+    return (
     <form onSubmit={handleLogin}>
       <div>
         <label>
           username
           <input
             type="text"
+            autoComplete="username"
             value={username}
             onChange={({ target }) => setUsername(target.value)}
           />
@@ -67,6 +94,7 @@ const App = () => {
           password
           <input
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={({ target }) => setPassword(target.value)}
           />
@@ -74,22 +102,25 @@ const App = () => {
       </div>
       <button type="submit">login</button>
     </form>
-  )
+    )
+  }
+
+  const blogList = () => {
+    if (user) {
+      return blogs.map(blog =>
+        <Blog key={blog.id} blog={blog} />
+      )
+    }
+  }
 
   return (
     <div>
       <h2>blogs</h2>
-      {!user && loginForm()}
-      {user && (
-        <div>
-          <p>{user.name} logged in</p>
-          {noteForm()}
-        </div>
-      )}
-      {user && <button onSubmit={handeLogout}>logout</button>}
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      <Notification message={errorMessage} isError={true} />
+      <Notification message={infoMessage} isError={false} />
+      {loginForm()}
+      <br />
+      {blogList()}
     </div>
   )
 }
