@@ -66,7 +66,7 @@ blogsRouter.delete('/:id', tokenValidator, async (request, response) => {
   const authUser = request.user
   const blogToDelete = await Blog.findById(request.params.id)
 
-  if (blogToDelete.user.toString() !== authUser.id) {
+  if (blogToDelete.user?.toString() !== authUser.id) {
     return response.status(403).json({ error: 'only the creator is allowed to delete a blog' })
   }
 
@@ -85,7 +85,7 @@ blogsRouter.put('/:id', tokenValidator, async (request, response, next) => {
       return response.status(404).end()
     }
 
-    if (oldBlog.user.toString() !== authUser.id) {
+    if (oldBlog.user?.toString() !== authUser.id) {
       return response.status(403).json({ error: 'only the creator is allowed to update a blog' })
     }
 

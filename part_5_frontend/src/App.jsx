@@ -33,9 +33,11 @@ const App = () => {
   }
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
+    const fetchBlogs = async () => {
+      const blogs = await blogService.getAllExpanded()
       setBlogs(blogs)
-    )
+    }
+    fetchBlogs()
   }, [])
 
   useEffect(() => {
@@ -74,6 +76,10 @@ const App = () => {
     setBlogs(blogs.concat(newBlog))
     blogFormRef.current.toggleVisibility()
     setTimeoutMsg(`a new blog "${newBlog.title}" by ${newBlog.author} added`, false)
+  }
+
+  const handleBlogUpdated = (updatedBlog) => {
+    setBlogs(blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog))
   }
 
   const loginForm = () => {
@@ -124,7 +130,7 @@ const App = () => {
           </Togglable>
           <br />
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} handleBlogUpdated={handleBlogUpdated} setTimeoutMessage={setTimeoutMsg}/>
           )}
         </div>
       )
