@@ -9,6 +9,7 @@ const BlogForm = ({ setTimeoutMessage, handleBlogCreated }) => {
   const createBlog = async (event) => {
     try {
       event.preventDefault()
+      // I prefer to do the blog creation here, and just notify the parent component
       const result = await blogService.create({
         title,
         author,

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Togglable from './components/Toggable'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
@@ -9,6 +10,7 @@ import loginService from './services/login'
 const loginCookieName = 'loggedNoteAppUser'
 
 const App = () => {
+  const blogFormRef = useRef()
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -70,6 +72,7 @@ const App = () => {
 
   const handleBlogCreated = (newBlog) => {
     setBlogs(blogs.concat(newBlog))
+    blogFormRef.current.toggleVisibility()
     setTimeoutMsg(`a new blog "${newBlog.title}" by ${newBlog.author} added`, false)
   }
 
@@ -115,7 +118,10 @@ const App = () => {
     if (user) {
       return (
         <div>
-          <BlogForm setTimeoutMessage={setTimeoutMsg} handleBlogCreated={handleBlogCreated} />
+          <Togglable buttonLabel="new blog" ref={blogFormRef}>
+            <BlogForm setTimeoutMessage={setTimeoutMsg} handleBlogCreated={handleBlogCreated} />
+            <br />
+          </Togglable>
           <br />
           {blogs.map(blog =>
             <Blog key={blog.id} blog={blog} />
