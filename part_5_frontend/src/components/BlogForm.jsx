@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const BlogForm = ({ setTimeoutMessage, handleBlogCreated }) => {
+const BlogForm = ({ user, setTimeoutMessage, handleBlogCreated }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -15,6 +15,9 @@ const BlogForm = ({ setTimeoutMessage, handleBlogCreated }) => {
         author,
         url
       })
+
+      // add expanded user details, as the return from the backend will not contain this
+      result.user = { username: user.username, name: user.name, id: user.id }
 
       setTitle('')
       setAuthor('')
@@ -36,13 +39,13 @@ const BlogForm = ({ setTimeoutMessage, handleBlogCreated }) => {
       {/* Thanks to Copilot for the improved form styling suggestion! */}
       <form onSubmit={createBlog} style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '10px', maxWidth: '400px' }} >
         <label htmlFor="title">title</label>
-        <input id="title" type="text" onChange={({ target }) => setTitle(target.value)} />
+        <input id="title" type="text" value={title} onChange={({ target }) => setTitle(target.value)} />
 
         <label htmlFor="author">author</label>
-        <input id="author" type="text" onChange={({ target }) => setAuthor(target.value)} />
+        <input id="author" type="text" value={author} onChange={({ target }) => setAuthor(target.value)} />
 
         <label htmlFor="url">url</label>
-        <input id="url" type="text" onChange={({ target }) => setUrl(target.value)} />
+        <input id="url" type="text" value={url} onChange={({ target }) => setUrl(target.value)} />
 
         <button type="submit" style={{ gridColumn: 'span 2' }}>
           create

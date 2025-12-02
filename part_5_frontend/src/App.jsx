@@ -92,6 +92,11 @@ const App = () => {
     setBlogs(blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog))
   }
 
+  const handleBlogRemoved = (removedBlog) => {
+    setBlogs(blogs.filter(blog => blog.id !== removedBlog.id))
+    setTimeoutMsg(`blog "${removedBlog.title}" removed`, false)
+  } 
+
   const loginForm = () => {
     if (user) {
       return (
@@ -137,7 +142,8 @@ const App = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '50% 50%', gap: '10px', maxWidth: '50%' }}>
             <div>
               <Togglable buttonLabel="new blog" ref={blogFormRef}>
-                <BlogForm setTimeoutMessage={setTimeoutMsg} handleBlogCreated={handleBlogCreated} />
+                <BlogForm user={user} setTimeoutMessage={setTimeoutMsg} handleBlogCreated={handleBlogCreated} />
+                <br />
               </Togglable>
             </div>
             <div style={{ float: "right", textAlign: "right" }}>
@@ -146,7 +152,7 @@ const App = () => {
           </div>
           <br />
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} handleBlogUpdated={handleBlogUpdated} setTimeoutMessage={setTimeoutMsg} />
+            <Blog key={blog.id} blog={blog} user={user} handleBlogUpdated={handleBlogUpdated} handleBlogRemoved={handleBlogRemoved} setTimeoutMessage={setTimeoutMsg} />
           )}
         </div>
       )
