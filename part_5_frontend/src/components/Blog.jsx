@@ -8,7 +8,7 @@ const Blog = ({ blog, user, handleBlogUpdated, handleBlogRemoved, setTimeoutMess
     try {
       console.log(`Liked blog: ${blog.title}`)
       // handling the user not needed as the backend will default to the authenticated user
-      const newBlog = { ...blog, likes: blog.likes + 1}
+      const newBlog = { ...blog, likes: blog.likes + 1 }
       await blogService.update(blog.id, newBlog)
       handleBlogUpdated(newBlog)
     } catch (error) {
@@ -21,27 +21,27 @@ const Blog = ({ blog, user, handleBlogUpdated, handleBlogRemoved, setTimeoutMess
 
   const removeBlog = async (blog) => {
     try {
-      if (window.confirm(`Remove blog "${blog.title}" by ${blog.author}?`)) {
-        console.log('Removing blog: ',blog) 
+      if (window.confirm(`Remove blog '${blog.title}' by ${blog.author}?`)) {
+        console.log('Removing blog: ',blog)
         await blogService.remove(blog.id)
         // Notify parent component to remove blog from list
         handleBlogRemoved(blog)
       }
     } catch (error) {
       setTimeoutMessage(
-        `error removing blog: ${error.response.data.error}`,  
+        `error removing blog: ${error.response.data.error}`,
         true
       )
     }
   }
 
   return (
-    <div className="blogStyle">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} >
+    <div className='blogStyle'>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
         <b>{blog.title}</b>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <p style={{ margin: "0 30px 0 0" }} >{blog.likes}</p>
-          <input type="button" value={showDetails ? "hide" : "view"} onClick={() => setShowDetails(!showDetails)} />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <p style={{ margin: '0 30px 0 0' }} >{blog.likes}</p>
+          <input type='button' value={showDetails ? 'hide' : 'view'} onClick={() => setShowDetails(!showDetails)} />
         </div>
       </div>
       {showDetails &&
@@ -50,10 +50,10 @@ const Blog = ({ blog, user, handleBlogUpdated, handleBlogRemoved, setTimeoutMess
           <div>{blog.url}</div>
           <div>
             likes {blog.likes}
-            <button onClick={likeBlog} style={{ marginLeft: "10px" }}>like</button>
+            <button onClick={likeBlog} style={{ marginLeft: '10px' }}>like</button>
           </div>
           <div>added by {blog.user?.name}</div>
-          <button onClick={() => removeBlog(blog)} style={{visibility: (user?.username && user.username === blog.user?.username) ? 'visible' : 'hidden'}}>remove</button>
+          <button onClick={() => removeBlog(blog)} style={{ visibility: (user?.username && user.username === blog.user?.username) ? 'visible' : 'hidden' }}>remove</button>
         </div>
       }
     </div>

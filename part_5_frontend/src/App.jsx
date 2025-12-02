@@ -95,7 +95,7 @@ const App = () => {
   const handleBlogRemoved = (removedBlog) => {
     setBlogs(blogs.filter(blog => blog.id !== removedBlog.id))
     setTimeoutMsg(`blog "${removedBlog.title}" removed`, false)
-  } 
+  }
 
   const loginForm = () => {
     if (user) {
@@ -146,7 +146,7 @@ const App = () => {
                 <br />
               </Togglable>
             </div>
-            <div style={{ float: "right", textAlign: "right" }}>
+            <div style={{ float: 'right', textAlign: 'right' }}>
               <button onClick={sortBlogsByLikes}>sort likes {sortAscending ? 'ascending' : 'descending'}</button>
             </div>
           </div>
