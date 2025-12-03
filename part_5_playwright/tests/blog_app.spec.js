@@ -1,4 +1,4 @@
-const { test, expect, describe, beforeEach } = require('@playwright/test')
+const { test, expect, describe, beforeEach, beforeAll } = require('@playwright/test')
 
 const testBlog = {
   title: 'Test blog title',
@@ -10,14 +10,20 @@ const testUser = {
   name: 'Superuser',
   username: 'root',
   password: 'salainen'
+} 
+
+const altUser = {
+  name: 'Another User',
+  username: 'altuser',
+  password: 'salainen'
 }
 
-const login = async (page) => {
-  await page.getByLabel('username').fill(testUser.username)
-  await page.getByLabel('password').fill(testUser.password)
+const login = async (page, user) => {
+  await page.getByLabel('username').fill(user.username)
+  await page.getByLabel('password').fill(user.password)
   await page.getByRole('button', { name: 'login' }).click()
 
-  await expect(page.locator('body')).toContainText(`${testUser.name} logged in`);
+  await expect(page.locator('body')).toContainText(`${user.name} logged in`)
 }
 
 const createBlog = async (page, blog) => {
@@ -32,15 +38,26 @@ const createBlog = async (page, blog) => {
   //submit blog
   await page.getByRole('button', { name: 'create' }).click()
 
-  const newBlog = page.locator('#blogentry').getByText(blog.title, { exact: false }); // ignore the nofification text
+  const newBlog = page.locator('#blogentry').getByText(blog.title, { exact: false }) // ignore the nofification text
   await expect(newBlog).toBeVisible()
 }
 
-describe('Blog app', () => {
-  beforeEach(async ({ page, request }) => {
-    await request.post('/api/testing/reset')
-    await request.post('/api/users', { data: testUser })
+// REset users only once before all tests
+test.beforeAll(async ({ browser }) => {
+  console.log(`Running setup for browser: ${browser.browserType().name()}`)
 
+  // ✅ Create a standalone API context (not tied to test fixtures)
+   const apiContext = await browser.newContext();
+
+  await apiContext.request.post('/api/testing/reset/users');
+  await apiContext.request.post('/api/users', { data: testUser });
+  await apiContext.request.post('/api/users', { data: altUser });
+
+})
+
+describe('Blog app', () => {
+  beforeEach(async ({ page }) => {
+    await page.request.post('/api/testing/reset/blogs') //reset blogs before each test
     await page.goto('/')
   })
 
@@ -54,7 +71,7 @@ describe('Blog app', () => {
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
-      await login(page)
+      await login(page, testUser)
     })
 
     test('fails with wrong credentials', async ({ page }) => {
@@ -72,7 +89,7 @@ describe('Blog app', () => {
 
   describe('When logged in', () => {
     beforeEach(async ({ page }) => {
-      await login(page)
+      await login(page, testUser)
     })
 
     test('a new blog can be created', async ({ page }) => {
@@ -80,16 +97,45 @@ describe('Blog app', () => {
     })
 
     test('a blog can be liked', async ({ page }) => {
+      
+      await createBlog(page, testBlog) 
+      const newBlog = page.locator('#blogentry').filter({ hasText: testBlog.title }).last()
+      //console.log(await newBlog.textContent())
+      await newBlog.getByRole('button', { name: 'view' }).click()
+      await newBlog.getByRole('button', { name: 'like', exact: true }).click()
+      await expect(newBlog).toContainText('likes 1')
+      await newBlog.getByRole('button', { name: 'like', exact: true }).click()
+      //console.log(await newBlog.textContent())
+      await expect(newBlog).toContainText('likes 2')
+    })
+
+    test('a blog can be deleted', async ({ page }) => {
 
       await createBlog(page, testBlog)
-      const newBlog = page.locator('#blogentry').filter({ hasText: testBlog.title }).first()
-      //console.log(await newBlog.textContent());
-      await newBlog.getByRole('button', { name: 'view' }).click();
-      await newBlog.getByRole('button', { name: 'like', exact: true }).click();
-      await expect(newBlog).toContainText('likes 1');
-      await newBlog.getByRole('button', { name: 'like', exact: true }).click();
-      //console.log(await newBlog.textContent());
-      await expect(newBlog).toContainText('likes 2');
+      const newBlog = page.locator('#blogentry').filter({ hasText: testBlog.title }).last()
+      await newBlog.getByRole('button', { name: 'view' }).click()
+
+      // Register the dialog handler BEFORE the action that triggers it
+      page.once('dialog', async (dialog) => {
+        console.log(`Dialog message: ${dialog.message()}`)
+        await dialog.accept() // Clicks "OK"
+      })
+      console.log(await newBlog.textContent())
+      await newBlog.getByRole('button', { name: 'remove' }).click()
+      const deletedBlog = page.locator('#blogentry').getByText(testBlog.title, { exact: false })
+      await expect(deletedBlog).not.toBeVisible()
+    })
+
+    test('a blog cannot be deleted by another user', async ({ page }) => {
+
+      await createBlog(page, testBlog)
+      await page.getByRole('button', { name: 'logout' }).click()
+      await login(page, altUser)
+      const newBlog = page.locator('#blogentry').filter({ hasText: testBlog.title }).last()
+      await newBlog.getByRole('button', { name: 'view' }).click()
+      console.log(await newBlog.textContent())
+      await expect(newBlog.getByRole('button', { name: 'remove' })).not.toBeVisible() // remove button should not be visible
+
     })
 
   })
