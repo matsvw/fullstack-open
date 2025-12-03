@@ -103,10 +103,10 @@ describe('Blog app', () => {
       //console.log(await newBlog.textContent())
       await newBlog.getByRole('button', { name: 'view' }).click()
       await newBlog.getByRole('button', { name: 'like', exact: true }).click()
-      await expect(newBlog).toContainText('likes 1')
+      await newBlog.getByText('likes 1', { exact: false }).waitFor()
       await newBlog.getByRole('button', { name: 'like', exact: true }).click()
       //console.log(await newBlog.textContent())
-      await expect(newBlog).toContainText('likes 2')
+      await newBlog.getByText('likes 2', { exact: false }).waitFor()
     })
 
     test('a blog can be deleted', async ({ page }) => {
@@ -136,6 +136,32 @@ describe('Blog app', () => {
       console.log(await newBlog.textContent())
       await expect(newBlog.getByRole('button', { name: 'remove' })).not.toBeVisible() // remove button should not be visible
 
+    })
+
+    test('sort blogs', async ({ page }) => {
+
+      const maxLikes=3
+      for (let likes = 0; likes < maxLikes; likes++) {
+        const blogToCreate = { ...testBlog, title: `Liked ${likes}` }
+        await createBlog(page, blogToCreate)
+        const newBlog = page.locator('#blogentry').filter({ hasText: blogToCreate.title }).last()
+        console.log(`Setting up blog: ${await newBlog.textContent()}`)
+        await newBlog.getByRole('button', { name: 'view' }).click()
+        for (let click = 0; click < likes; click++) {
+          await newBlog.getByRole('button', { name: 'like', exact: true }).click()
+          await newBlog.getByText(`likes ${click + 1}`, { exact: false }).waitFor() //waitFor does the trick!
+        }
+      }
+
+      await page.getByRole('button', { name: 'sort likes ascending' }).click()
+      let firstBlog = page.locator('#blogentry').first()
+      console.log(`First blog after ascending sort: ${await firstBlog.textContent()}`)
+      await firstBlog.getByText('Liked 0').waitFor() //least liked blog should be first
+
+      await page.getByRole('button', { name: 'sort likes descending' }).click()
+      firstBlog = page.locator('#blogentry').first()
+      console.log(`First blog after descending sort: ${await firstBlog.textContent()}`)
+      await firstBlog.getByText(`Liked ${maxLikes - 1}`).waitFor() //most liked blog should be first
     })
 
   })
