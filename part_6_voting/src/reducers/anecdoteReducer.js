@@ -26,6 +26,13 @@ export const voteForAnecdote = id => {
   }
 }
 
+export const createAnecdote = content => {
+  return {
+    type: 'CREATE',
+    data: { content }
+  }
+}
+
 const reducer = (state = initialState, action) => {
   console.log('state now: ', state)
   console.log('action', action)
@@ -38,6 +45,8 @@ const reducer = (state = initialState, action) => {
           ? { ...anecdote, votes: anecdote.votes + 1 }
           : anecdote
       )
+    case 'CREATE':
+      return [...state, asObject(action.data.content)] 
     default:
       console.log(`Unsupported action '${action.type}'. Returning default state`)
       return state
