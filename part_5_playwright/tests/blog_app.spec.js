@@ -16,8 +16,24 @@ const login = async (page) => {
   await page.getByLabel('username').fill(testUser.username)
   await page.getByLabel('password').fill(testUser.password)
   await page.getByRole('button', { name: 'login' }).click()
-  //console.log(await page.textContent('body'))
+
   await expect(page.locator('body')).toContainText(`${testUser.name} logged in`);
+}
+
+const createBlog = async (page, blog) => {
+  //create new blog
+  await page.getByRole('button', { name: 'new blog' }).click()
+
+  //fill blog details
+  await page.getByRole('textbox', { name: 'title' }).fill(blog.title)
+  await page.getByRole('textbox', { name: 'author' }).fill(blog.author)
+  await page.getByRole('textbox', { name: 'url' }).fill(blog.url)
+
+  //submit blog
+  await page.getByRole('button', { name: 'create' }).click()
+
+  const newBlog = page.locator('#blogentry').getByText(blog.title, { exact: false }); // ignore the nofification text
+  await expect(newBlog).toBeVisible()
 }
 
 describe('Blog app', () => {
@@ -60,21 +76,23 @@ describe('Blog app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
+      await createBlog(page, testBlog)
+    })
 
-      //create new blog
-      await page.getByRole('button', { name: 'new blog' }).click()
+    test('a blog can be liked', async ({ page }) => {
 
-      await page.getByRole('textbox', { name: 'title' }).fill(testBlog.title)
-      await page.getByRole('textbox', { name: 'author' }).fill(testBlog.author)
-      await page.getByRole('textbox', { name: 'url' }).fill(testBlog.url)
-
-      await page.getByRole('button', { name: 'create' }).click()
-
-      const newBlog = page.locator('#blogentry').getByText(testBlog.title, { exact: false }); // ignore the nofification text
-
-      await expect(newBlog).toBeVisible()
-
+      await createBlog(page, testBlog)
+      const newBlog = page.locator('#blogentry').filter({ hasText: testBlog.title }).first()
+      //console.log(await newBlog.textContent());
+      await newBlog.getByRole('button', { name: 'view' }).click();
+      await newBlog.getByRole('button', { name: 'like', exact: true }).click();
+      await expect(newBlog).toContainText('likes 1');
+      await newBlog.getByRole('button', { name: 'like', exact: true }).click();
+      //console.log(await newBlog.textContent());
+      await expect(newBlog).toContainText('likes 2');
     })
 
   })
 })
+
+
