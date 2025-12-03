@@ -7,6 +7,7 @@ const store = createStore(counterReducer)
 const App = () => {
   return (
     <div>
+      <h2>give feedback</h2>
       <button onClick={() => store.dispatch({ type: 'GOOD' })}>good</button>
       <button onClick={() => store.dispatch({ type: 'OK' })}>ok</button>
       <button onClick={() => store.dispatch({ type: 'BAD' })}>bad</button>
