@@ -1,4 +1,5 @@
 import { createSlice, createSelector, current } from '@reduxjs/toolkit'
+import { selectFilter } from './filterReducer'
 
 const anecdotesAtStart = [
   'If it hurts, do it more often',
@@ -21,7 +22,6 @@ const asObject = anecdote => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-
 const anecdoteSlice = createSlice({
   name: 'anecdotes',
   initialState,
@@ -40,7 +40,6 @@ const anecdoteSlice = createSlice({
 })
 
 export const selectAnecdotes = state => state.anecdotes
-export const selectFilter = (state) => state.filter ?? '';
 
 export const selectFilteredAnecdotes = createSelector(
    [selectAnecdotes, selectFilter],
@@ -51,7 +50,6 @@ export const selectSortedByVotes = createSelector(
   [selectFilteredAnecdotes],
   anecdotes => [...anecdotes].sort((a, b) => b.votes - a.votes)
 )
-
 
 export const { createAnecdote, voteForAnecdote } = anecdoteSlice.actions
 export default anecdoteSlice.reducer
