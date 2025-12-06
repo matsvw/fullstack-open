@@ -72,6 +72,31 @@
             ], // assuming "dev" runs Vite
             "cwd": "${workspaceFolder}/part_5_frontend",
             "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug part_6_voting backend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "server"
+            ],
+            "cwd": "${workspaceFolder}/part_6_voting",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug part_6_voting frontend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev",
+                "--watch"
+            ], // assuming "dev" runs Vite
+            "cwd": "${workspaceFolder}/part_6_voting",
+            "console": "integratedTerminal"
         }
     ],
     "compounds": [
@@ -80,6 +105,13 @@
             "configurations": [
                 "Debug part_5_backend",
                 "Debug part_5_frontend"
+            ]
+        },
+        {
+            "name": "Debug part 6 voting (UI+BFF)",
+            "configurations": [
+                "Debug part_6_voting backend",
+                "Debug part_6_voting frontend"
             ]
         }
     ]
