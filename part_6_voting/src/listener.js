@@ -1,13 +1,13 @@
 
 // store/listenerMiddleware.js
-import { createListenerMiddleware, isAnyOf, current } from '@reduxjs/toolkit';
-import { updateAnecdote } from './reducers/anecdoteReducer';
+import { createListenerMiddleware, isAnyOf } from '@reduxjs/toolkit';
+import { updateAnecdoteAction } from './reducers/anecdoteReducer';
 import { setNotification, hideNotification } from './reducers/notificationReducer';
 
 const listenerMiddleware = createListenerMiddleware();
 
 listenerMiddleware.startListening({
-  matcher: isAnyOf(updateAnecdote),
+  matcher: isAnyOf(updateAnecdoteAction),
   effect: async (action, listenerApi) => {
     const { dispatch, delay, getState } = listenerApi
     console.log('Listener detected updateAnecdote action:', action);

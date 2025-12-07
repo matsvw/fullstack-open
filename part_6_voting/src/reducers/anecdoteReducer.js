@@ -1,5 +1,6 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit'
 import { selectFilter } from './filterReducer'
+import anecdoteService from '../services/anecdotes'
 
 const anecdoteSlice = createSlice({
   name: 'anecdotes',
@@ -21,6 +22,30 @@ const anecdoteSlice = createSlice({
   },
 })
 
+const { setAnecdotes, createAnecdote , updateAnecdote } = anecdoteSlice.actions
+export const { updateAnecdote: updateAnecdoteAction } = anecdoteSlice.actions // Need to use unique name for listener, otherwise it starts a loop
+
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    const anecdotes = await anecdoteService.getAll()
+    dispatch(setAnecdotes(anecdotes))
+  }
+}
+
+export const appendAnecdote = (content) => {
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.createNew(content)
+    dispatch(createAnecdote(newAnecdote))
+  }
+}
+
+export const saveAnecdote = (anecdote) => {
+  return async (dispatch) => {
+    const updatedAnecdote= await anecdoteService.updateExisting(anecdote)
+    dispatch(updateAnecdote(updatedAnecdote))
+  }
+}
+
 export const selectAnecdotes = state => state.anecdotes
 
 export const selectFilteredAnecdotes = createSelector(
@@ -33,5 +58,5 @@ export const selectSortedByVotes = createSelector(
   anecdotes => [...anecdotes].sort((a, b) => b.votes - a.votes)
 )
 
-export const { createAnecdote, updateAnecdote, setAnecdotes } = anecdoteSlice.actions
+
 export default anecdoteSlice.reducer
