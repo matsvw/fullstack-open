@@ -93,7 +93,6 @@
             "runtimeArgs": [
                 "run",
                 "dev",
-                "--watch"
             ], // assuming "dev" runs Vite
             "cwd": "${workspaceFolder}/part_6_voting",
             "console": "integratedTerminal"

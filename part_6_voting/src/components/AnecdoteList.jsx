@@ -1,13 +1,20 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { voteForAnecdote, selectSortedByVotes } from '../reducers/anecdoteReducer'
+import { updateAnecdote, selectSortedByVotes } from '../reducers/anecdoteReducer'
+import anecdoteService from '../services/anecdotes.js'
+
 
 const AnecdoteForm = () => {
   const anecdotes = useSelector(selectSortedByVotes)
   const dispatch = useDispatch()
 
-  const vote = id => {
+  const vote = async(id) => {
     console.log('vote', id)
-    dispatch(voteForAnecdote(id))
+    const target = anecdotes.find(a => a.id === id);
+    if (target) {
+      console.log(target)
+      const updatedAnecdote = await anecdoteService.updateExisting({ ...target, votes: target.votes + 1 })
+      dispatch(updateAnecdote(updatedAnecdote))
+    }
   }
 
   return (
