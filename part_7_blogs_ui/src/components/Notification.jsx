@@ -1,13 +1,24 @@
-const Notification = ({ message, isError=true }) => {
-  if (message === null) {
-    return null
+export default Notification;
+
+import { useContext } from "react";
+import NotificationContext from "../contexts/NotificationContext";
+
+const Notification = () => {
+  const { notification, notificationDispatch } =
+    useContext(NotificationContext);
+  console.log("Notification: ", notification);
+
+  if (!notification) {
+    return null;
   }
 
-  return (
-    <div className={isError ? "error" : "notification"}>
-      {message}
-    </div>
-  )
-}
+  setTimeout(() => {
+    notificationDispatch({ type: "HIDE" });
+  }, 3000);
 
-export default Notification
+  return (
+    <div className={notification.isError ? "error" : "notification"}>
+      {notification.message}
+    </div>
+  );
+};
