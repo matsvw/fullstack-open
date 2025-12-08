@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
@@ -7,7 +7,6 @@ import AnecdoteList from './components/AnecdoteList'
 import { getAnecdotes } from './requests'
 
 const App = () => {
-  const queryClient = useQueryClient()
 
   const result = useQuery({
     queryKey: ['anecdotes'],

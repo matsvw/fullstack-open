@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useMemo } from "react";
+import { useQuery } from '@tanstack/react-query'
+
 import NotificationContext from './contexts/NotificationContext'
 import Togglable from "./components/Toggable";
 import Blog from "./components/Blog";
@@ -14,28 +16,11 @@ const App = () => {
   const { notificationDispatch } = useContext(NotificationContext)
 
   const blogFormRef = useRef();
-  const [blogs, setBlogs] = useState([]);
+  
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [sortAscending, setSortAscending] = useState(true);
-
-  const sortBlogsByLikes = () => {
-    const sortedBlogs = [...blogs].sort((a, b) => {
-      return sortAscending ? a.likes - b.likes : b.likes - a.likes;
-    });
-    setBlogs(sortedBlogs);
-    setSortAscending(!sortAscending);
-  };
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      const blogs = await blogService.getAllExpanded();
-      blogs.sort((a, b) => b.likes - a.likes);
-      setBlogs(blogs);
-    };
-    fetchBlogs();
-  }, []);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem(loginCookieName);
@@ -45,6 +30,46 @@ const App = () => {
       blogService.setToken(user.token);
     }
   }, []);
+
+  
+  // Conditionally fetch when user exists
+  const {
+    data: blogs = [],
+    isLoading,
+    isError,
+    error: loadingError,
+  } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+    enabled: !!user, 
+    refetchOnWindowFocus: false,
+    retry: 1,
+  })
+
+  const sortedBlogs = useMemo(() => {
+    const list = blogs ?? []
+    const copy = [...list]
+    copy.sort((a, b) => (sortAscending ? a.likes - b.likes : b.likes - a.likes))
+    return copy
+  }, [blogs, sortAscending])
+
+  const toggleSort = () => setSortAscending((s) => !s)
+
+  useEffect(() => {
+    if (isError) {
+      notificationDispatch({
+        type: 'SHOW_ERROR',
+        payload: loadingError?.message ?? 'Failed to load blogs',
+      })
+    }
+  }, [isError, loadingError, notificationDispatch])
+
+  // If token depends on user changes later:
+  useEffect(() => {
+    if (user?.token) {
+      blogService.setToken(user.token)
+    }
+  }, [user])
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -68,20 +93,16 @@ const App = () => {
     window.localStorage.removeItem(loginCookieName);
   };
 
-  const handleBlogCreated = (newBlog) => {
-    setBlogs(blogs.concat(newBlog));
-    blogFormRef.current.toggleVisibility();
-    notificationDispatch({ type: 'SHOW_MESSAGE', payload: `a new blog '${newBlog.title}' by ${newBlog.author} added`, })
-  };
-
   const handleBlogUpdated = (updatedBlog) => {
-    setBlogs(
-      blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog)),
-    );
+    console.log("Update blog: ", updatedBlog)
+    //setBlogs(
+    //  blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog)),
+    //);
   };
 
   const handleBlogRemoved = (removedBlog) => {
-    setBlogs(blogs.filter((blog) => blog.id !== removedBlog.id));
+    console.log("Remove blog: ", removedBlog)
+    //setBlogs(blogs.filter((blog) => blog.id !== removedBlog.id));
     notificationDispatch({ type: 'SHOW_MESSAGE', payload: `blog '${removedBlog.title}' removed`, })
   };
 
@@ -124,6 +145,9 @@ const App = () => {
   };
 
   const blogList = () => {
+    if (isLoading) {
+      <p>Loading blogs...</p>
+    }
     if (user) {
       return (
         <div>
@@ -139,19 +163,18 @@ const App = () => {
               <Togglable buttonLabel="new blog" ref={blogFormRef}>
                 <BlogForm
                   user={user}
-                  handleBlogCreated={handleBlogCreated}
                 />
                 <br />
               </Togglable>
             </div>
             <div style={{ float: "right", textAlign: "right" }}>
-              <button onClick={sortBlogsByLikes}>
+              <button onClick={toggleSort}>
                 sort likes {sortAscending ? "ascending" : "descending"}
               </button>
             </div>
           </div>
           <br />
-          {blogs.map((blog) => (
+          {sortedBlogs.map((blog) => (
             <Blog
               key={blog.id}
               blog={blog}

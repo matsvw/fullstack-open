@@ -65,7 +65,7 @@ const Blog = ({
               like
             </button>
           </div>
-          <div>added by {blog.user?.name}</div>
+          <div>added by {blog.user?.name ?? 'unknown user'}</div>
           <button
             onClick={() => removeBlog(blog)}
             style={{

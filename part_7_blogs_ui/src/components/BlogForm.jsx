@@ -1,34 +1,45 @@
 import { useState, useContext } from "react";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
 import NotificationContext from '../contexts/NotificationContext'
 import blogService from "../services/blogs";
 
-const BlogForm = ({ user, handleBlogCreated }) => {
+const BlogForm = ({ user }) => {
+  const queryClient = useQueryClient()
   const { notificationDispatch } = useContext(NotificationContext)
+
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (newBlog) => {
+      // add expanded user details, as the return from the backend will not contain this
+      newBlog.user = { username: user.username, name: user.name, id: user.id };
+      const blogs = queryClient.getQueryData(['blogs'])
+      //queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      queryClient.setQueryData(['blogs'], blogs.concat(newBlog))
+      notificationDispatch({ type: 'SHOW_MESSAGE', payload: `a new blog '${newBlog.title}' by ${newBlog.author} added`, })
+    },
+    onError: (error) => {
+      console.log(error)
+      notificationDispatch({ type: 'SHOW_ERROR', payload: `Error creating blog: ${error.response.data.error}` })
+    }
+  })
 
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
 
   const createBlog = async (event) => {
-    try {
-      event.preventDefault();
-      // I prefer to do the blog creation here, and just notify the parent component
-      const result = await blogService.create({
-        title,
-        author,
-        url,
-      });
+    event.preventDefault();
 
-      // add expanded user details, as the return from the backend will not contain this
-      result.user = { username: user.username, name: user.name, id: user.id };
+    newBlogMutation.mutate({
+      title,
+      author,
+      url
+    })
 
-      setTitle("");
-      setAuthor("");
-      setUrl("");
-      handleBlogCreated(result);
-    } catch (error) {
-      notificationDispatch({ type: 'SHOW_ERROR', payload: `error creating blog: ${error.response.data.error}`, })
-    }
+    setTitle("")
+    setAuthor("");
+    setUrl("");
   };
 
   return (
