@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, Link, useMatch, useNavigate } from 'react-router-dom'
+import { useField } from './hooks'
 
 const Menu = () => {
   const padding = {
@@ -55,24 +56,27 @@ const Footer = () => (
 
 const CreateNew = (props) => {
   const navigate = useNavigate()
-
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
-
+  const [contentProps, contentActions] = useField('text')
+  const [authorProps, authorActions] = useField('text')
+  const [infoProps,  infoActions] = useField('text')
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: contentProps.value ,
+      author: authorProps.value,
+      info: infoProps.value,
       votes: 0
     })
-    setContent('')
-    setAuthor('')
-    setInfo('')
     navigate('/')
+  }
+
+  const handleReset = (e) => {
+    e.preventDefault()
+    console.log('Reset')
+    contentActions.reset()
+    authorActions.reset()
+    infoActions.reset()
   }
 
   return (
@@ -81,17 +85,18 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...contentProps} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...authorProps} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
+          <input  {...infoProps} />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        <button type="reset" onClick={handleReset}>reset</button>
       </form>
     </div>
   )
@@ -143,7 +148,7 @@ const App = () => {
   }
 
   const match = useMatch('/anecdotes/:id')
-  const anecdote = match 
+  const anecdote = match
     ? anecdotes.find(anecdote => anecdote.id === Number(match.params.id))
     : null
 
