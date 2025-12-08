@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import NotificationContext from '../contexts/NotificationContext'
 import blogService from "../services/blogs";
 
 const Blog = ({
@@ -6,8 +7,8 @@ const Blog = ({
   user,
   handleBlogUpdated,
   handleBlogRemoved,
-  setTimeoutMessage,
 }) => {
+  const { notificationDispatch } = useContext(NotificationContext)
   const [showDetails, setShowDetails] = useState(false);
 
   const likeBlog = async () => {
@@ -18,10 +19,7 @@ const Blog = ({
       await blogService.update(blog.id, newBlog);
       handleBlogUpdated(newBlog);
     } catch (error) {
-      setTimeoutMessage(
-        `error liking blog: ${error.response.data.error}`,
-        true,
-      );
+      notificationDispatch({ type: 'SHOW_ERROR', payload: `error liking blog: ${error.response.data.error}`, })
     }
   };
 
@@ -34,10 +32,7 @@ const Blog = ({
         handleBlogRemoved(blog);
       }
     } catch (error) {
-      setTimeoutMessage(
-        `error removing blog: ${error.response.data.error}`,
-        true,
-      );
+      notificationDispatch({ type: 'SHOW_ERROR', payload: `error removing blog: ${error.response.data.error}`, })
     }
   };
 

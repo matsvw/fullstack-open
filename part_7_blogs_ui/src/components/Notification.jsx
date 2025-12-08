@@ -1,16 +1,15 @@
-export default Notification;
-
 import { useContext } from "react";
 import NotificationContext from "../contexts/NotificationContext";
 
 const Notification = () => {
   const { notification, notificationDispatch } =
     useContext(NotificationContext);
-  console.log("Notification: ", notification);
-
+  
   if (!notification) {
     return null;
   }
+
+  console.log("Notification triggered: ", notification);
 
   setTimeout(() => {
     notificationDispatch({ type: "HIDE" });
@@ -22,3 +21,5 @@ const Notification = () => {
     </div>
   );
 };
+
+export default Notification;

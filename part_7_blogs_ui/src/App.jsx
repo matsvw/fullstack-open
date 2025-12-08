@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
+import NotificationContext from './contexts/NotificationContext'
 import Togglable from "./components/Toggable";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
@@ -10,28 +11,14 @@ import loginService from "./services/login";
 const loginCookieName = "loggedNoteAppUser";
 
 const App = () => {
+  const { notificationDispatch } = useContext(NotificationContext)
+
   const blogFormRef = useRef();
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [infoMessage, setInfoMessage] = useState(null);
   const [sortAscending, setSortAscending] = useState(true);
-
-  const setTimeoutMsg = (message, isError = true) => {
-    if (isError) {
-      setErrorMessage(message);
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
-    } else {
-      setInfoMessage(message);
-      setTimeout(() => {
-        setInfoMessage(null);
-      }, 5000);
-    }
-  };
 
   const sortBlogsByLikes = () => {
     const sortedBlogs = [...blogs].sort((a, b) => {
@@ -72,7 +59,7 @@ const App = () => {
       setUsername("");
       setPassword("");
     } catch {
-      setTimeoutMsg("wrong credentials", true);
+      notificationDispatch({ type: 'SHOW_ERROR', payload: 'wrong credentials', })
     }
   };
 
@@ -84,10 +71,7 @@ const App = () => {
   const handleBlogCreated = (newBlog) => {
     setBlogs(blogs.concat(newBlog));
     blogFormRef.current.toggleVisibility();
-    setTimeoutMsg(
-      `a new blog '${newBlog.title}' by ${newBlog.author} added`,
-      false,
-    );
+    notificationDispatch({ type: 'SHOW_MESSAGE', payload: `a new blog '${newBlog.title}' by ${newBlog.author} added`, })
   };
 
   const handleBlogUpdated = (updatedBlog) => {
@@ -98,7 +82,7 @@ const App = () => {
 
   const handleBlogRemoved = (removedBlog) => {
     setBlogs(blogs.filter((blog) => blog.id !== removedBlog.id));
-    setTimeoutMsg(`blog '${removedBlog.title}' removed`, false);
+    notificationDispatch({ type: 'SHOW_MESSAGE', payload: `blog '${removedBlog.title}' removed`, })
   };
 
   const loginForm = () => {
@@ -155,7 +139,6 @@ const App = () => {
               <Togglable buttonLabel="new blog" ref={blogFormRef}>
                 <BlogForm
                   user={user}
-                  setTimeoutMessage={setTimeoutMsg}
                   handleBlogCreated={handleBlogCreated}
                 />
                 <br />
@@ -175,7 +158,6 @@ const App = () => {
               user={user}
               handleBlogUpdated={handleBlogUpdated}
               handleBlogRemoved={handleBlogRemoved}
-              setTimeoutMessage={setTimeoutMsg}
             />
           ))}
         </div>
@@ -186,8 +168,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification message={errorMessage} isError={true} />
-      <Notification message={infoMessage} isError={false} />
+      <Notification />
       {loginForm()}
       <br />
       {blogList()}

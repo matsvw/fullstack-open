@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import NotificationContext from '../contexts/NotificationContext'
 import blogService from "../services/blogs";
 
-const BlogForm = ({ user, setTimeoutMessage, handleBlogCreated }) => {
+const BlogForm = ({ user, handleBlogCreated }) => {
+  const { notificationDispatch } = useContext(NotificationContext)
+
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -24,10 +27,7 @@ const BlogForm = ({ user, setTimeoutMessage, handleBlogCreated }) => {
       setUrl("");
       handleBlogCreated(result);
     } catch (error) {
-      setTimeoutMessage(
-        `error creating blog: ${error.response.data.error}`,
-        true,
-      );
+      notificationDispatch({ type: 'SHOW_ERROR', payload: `error creating blog: ${error.response.data.error}`, })
     }
   };
 
