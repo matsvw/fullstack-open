@@ -5,6 +5,7 @@ import UserContext from './contexts/UserContext'
 
 import BlogList from './components/BlogList'
 import UserList from './components/UserList'
+import User from './components/User'
 import Notification from './components/Notification'
 
 const App = () => {
@@ -77,7 +78,7 @@ const App = () => {
       <br />
       <Routes>
         <Route path="/users" element={<UserList />} />
-        <Route path="/users/:id" element={<p>Implement this!</p>} />
+        <Route path="/users/:id" element={<User />} />
         <Route path="/blogs" element={<BlogList />} />
         <Route path="/blogs/:id" element={<p>Implement this!</p>} />
         <Route path="/" element={<BlogList />} />

@@ -2,13 +2,8 @@ import axios from 'axios'
 import tokenStore from '../helpers/tokenStore'
 const baseUrl = '/api/blogs'
 
-const getAll = async () => {
-  const response = await axios.get(baseUrl)
-  return response.data
-}
-
-const getAllExpanded = async () => {
-  const response = await axios.get(`${baseUrl}?expand=true`)
+const getAll = async (expand = false) => {
+  const response = await axios.get(`${baseUrl}?expand=${expand}`)
   return response.data
 }
 
@@ -41,4 +36,4 @@ const remove = async (id) => {
   return response.data
 }
 
-export default { getAll, getAllExpanded, create, update, remove }
+export default { getAll, create, update, remove }

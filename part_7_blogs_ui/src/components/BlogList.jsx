@@ -21,7 +21,7 @@ const BlogList = () => {
     error: loadingError,
   } = useQuery({
     queryKey: ['blogs'],
-    queryFn: blogService.getAllExpanded,
+    queryFn: () => blogService.getAll(true),
     enabled: !!userState.user,
     refetchOnWindowFocus: false,
     retry: 1,
