@@ -2,8 +2,7 @@ import { useContext } from "react";
 import NotificationContext from "../contexts/NotificationContext";
 
 const Notification = () => {
-  const { notification, notificationDispatch } =
-    useContext(NotificationContext);
+  const { notification, notificationDispatch } = useContext(NotificationContext);
   
   if (!notification) {
     return null;

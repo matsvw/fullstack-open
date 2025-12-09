@@ -2,36 +2,24 @@ import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { useQuery } from '@tanstack/react-query'
 
 import NotificationContext from './contexts/NotificationContext'
+import UserContext from './contexts/UserContext'
+
 import Togglable from "./components/Toggable";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
-
 import blogService from "./services/blogs";
-import loginService from "./services/login";
-
-const loginCookieName = "loggedNoteAppUser";
 
 const App = () => {
   const { notificationDispatch } = useContext(NotificationContext)
+  const { login, logout, userState } = useContext(UserContext)
 
   const blogFormRef = useRef();
-  
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
   const [sortAscending, setSortAscending] = useState(true);
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem(loginCookieName);
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
-    }
-  }, []);
-
-  
   // Conditionally fetch when user exists
   const {
     data: blogs = [],
@@ -41,7 +29,7 @@ const App = () => {
   } = useQuery({
     queryKey: ['blogs'],
     queryFn: blogService.getAllExpanded,
-    enabled: !!user, 
+    enabled: !!userState.user,
     refetchOnWindowFocus: false,
     retry: 1,
   })
@@ -64,40 +52,28 @@ const App = () => {
     }
   }, [isError, loadingError, notificationDispatch])
 
-  // If token depends on user changes later:
-  useEffect(() => {
-    if (user?.token) {
-      blogService.setToken(user.token)
-    }
-  }, [user])
-
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    try {
-      const user = await loginService.login({ username, password });
+    await login({ username, password })
 
-      window.localStorage.setItem(loginCookieName, JSON.stringify(user));
-      blogService.setToken(user.token);
-
-      setUser(user);
-      setUsername("");
-      setPassword("");
-    } catch {
-      notificationDispatch({ type: 'SHOW_ERROR', payload: 'wrong credentials', })
+    if (userState.status === 'authenticated') {
+      setUsername('')
+      setPassword('')
     }
   };
 
   const handeLogout = async () => {
-    setUser(null);
-    window.localStorage.removeItem(loginCookieName);
+    await logout();
+    setUsername('')
+    setPassword('')
   };
 
   const loginForm = () => {
-    if (user) {
+    if (userState.user) {
       return (
         <div>
-          <p>{`${user.name} logged in`}</p>
+          <p>{`${userState.user.name} logged in`}</p>
           <button onClick={handeLogout}>logout</button>
         </div>
       );
@@ -135,7 +111,7 @@ const App = () => {
     if (isLoading) {
       <p>Loading blogs...</p>
     }
-    if (user) {
+    if (userState.user) {
       return (
         <div>
           <div
@@ -148,9 +124,7 @@ const App = () => {
           >
             <div>
               <Togglable buttonLabel="new blog" ref={blogFormRef}>
-                <BlogForm
-                  user={user}
-                />
+                <BlogForm />
                 <br />
               </Togglable>
             </div>
@@ -165,7 +139,6 @@ const App = () => {
             <Blog
               key={blog.id}
               blog={blog}
-              user={user}
             />
           ))}
         </div>
