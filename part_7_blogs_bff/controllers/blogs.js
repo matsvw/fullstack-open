@@ -69,6 +69,28 @@ blogsRouter.post('/', tokenValidator, async (request, response, next) => {
   }
 })
 
+blogsRouter.post('/:id/comments', tokenValidator, async (request, response, next) => {
+  try {
+    //const authUser = request.user
+
+    const oldBlog = await Blog.findById(request.params.id)
+    if (!oldBlog) {
+      return response.status(404).end()
+    }
+
+    const comment = {
+      comment: request.body.comment,
+    }
+    oldBlog.comments = oldBlog.comments ? oldBlog.comments.concat(comment) : [comment]
+    console.log(oldBlog)
+    const savedBlog = await oldBlog.save()
+    response.status(201).json(savedBlog)
+  }
+  catch (error) {
+    next(error)
+  }
+})
+
 blogsRouter.delete('/:id', tokenValidator, async (request, response) => {
 
   const authUser = request.user

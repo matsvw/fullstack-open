@@ -25,6 +25,11 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  comments: [
+    {
+      comment: { type: String, required: true },
+    }
+  ],
   // This does not really many sense for a blog list, but the implementation is only for testing this feature
   user: {
     type: mongoose.Schema.Types.ObjectId,

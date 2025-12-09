@@ -17,9 +17,13 @@ const BlogForm = () => {
     onSuccess: (newBlog) => {
       // add expanded user details, as the return from the backend will not contain this
       newBlog.user = { username: user.username, name: user.name, id: user.id }
-      const blogs = queryClient.getQueryData(['blogs'])
-      //queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
-      queryClient.setQueryData(['blogs'], blogs.concat(newBlog))
+      queryClient.setQueryData(['blogs'], (prev) => {
+        // If there is no data yet, skip this
+        if (!prev) return prev
+
+        return prev.concat(newBlog)
+      })
+
       notificationDispatch({
         type: 'SHOW_MESSAGE',
         payload: `a new blog '${newBlog.title}' by ${newBlog.author} added`,

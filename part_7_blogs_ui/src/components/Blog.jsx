@@ -29,18 +29,18 @@ const Blog = () => {
   const updateBlogMutation = useMutation({
     mutationFn: (blog) => blogService.update(blog),
     onSuccess: (updatedBlog) => {
-      // add expanded user details, as the return from the backend will not contain this
-      updatedBlog.user = {
-        username: user.username,
-        name: user.name,
-        id: user.id,
-      }
-      const blogs = queryClient.getQueryData(['blogs'])
-      //queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
-      queryClient.setQueryData(
-        ['blogs'],
-        blogs.map((b) => (b.id === updatedBlog.id ? updatedBlog : b)),
-      )
+      updatedBlog.user = blog.user // copy user details as they are not expanded here
+      queryClient.setQueryData(['blogs'], (prev) => {
+        // If there is no data yet, skip this
+        if (!prev) return prev
+
+        return prev.map((b) => (b.id === updatedBlog.id ? updatedBlog : b))
+      })
+
+      queryClient.setQueryData(['blog', updatedBlog.id], () => {
+        return updatedBlog
+      })
+
       notificationDispatch({
         type: 'SHOW_MESSAGE',
         payload: `updated blog '${updatedBlog.title}'`,
@@ -50,7 +50,36 @@ const Blog = () => {
       console.log(error)
       notificationDispatch({
         type: 'SHOW_ERROR',
-        payload: `Error creating blog: ${error.response.data.error}`,
+        payload: `Error updating blog: ${error.response.data.error}`,
+      })
+    },
+  })
+
+  const commentBlogMutation = useMutation({
+    mutationFn: ({ blog, comment }) => blogService.comment(blog.id, comment),
+    onSuccess: (updatedBlog) => {
+      updatedBlog.user = blog.user // copy user details as they are not expanded here
+      queryClient.setQueryData(['blogs'], (prev) => {
+        // If there is no data yet, skip this
+        if (!prev) return prev
+
+        return prev.map((b) => (b.id === updatedBlog.id ? updatedBlog : b))
+      })
+
+      queryClient.setQueryData(['blog', updatedBlog.id], () => {
+        return updatedBlog
+      })
+
+      notificationDispatch({
+        type: 'SHOW_MESSAGE',
+        payload: `commented on blog '${updatedBlog.title}'`,
+      })
+    },
+    onError: (error) => {
+      console.log(error)
+      notificationDispatch({
+        type: 'SHOW_ERROR',
+        payload: `Error commenting blog: ${error.response.data.error}`,
       })
     },
   })
@@ -58,11 +87,12 @@ const Blog = () => {
   const deleteBlogMutation = useMutation({
     mutationFn: (blog) => blogService.remove(blog.id),
     onSuccess: (_, blog) => {
-      const blogs = queryClient.getQueryData(['blogs'])
-      queryClient.setQueryData(
-        ['blogs'],
-        blogs.filter((b) => b.id !== blog.id),
-      )
+      queryClient.setQueryData(['blogs'], (prev) => {
+        // If there is no data yet, skip this
+        if (!prev) return prev
+
+        return prev.filter((b) => b.id !== blog.id)
+      })
 
       notificationDispatch({
         type: 'SHOW_MESSAGE',
@@ -85,6 +115,12 @@ const Blog = () => {
 
   const removeBlog = (blogToRemove) => {
     deleteBlogMutation.mutate(blogToRemove)
+  }
+
+  const commentBlog = async (event, blog) => {
+    event.preventDefault()
+    const comment = event.target.comment.value
+    commentBlogMutation.mutate({ blog, comment })
   }
 
   if (isLoading) {
@@ -122,6 +158,19 @@ const Blog = () => {
             remove
           </button>
         </div>
+        <h3>Comments</h3>
+        <form onSubmit={(event) => commentBlog(event, blog)}>
+          <input id="comment" type="text" />
+          <button type="submit" style={{ gridColumn: 'span 2' }}>
+            add comment
+          </button>
+        </form>
+        <ul>
+          {blog.comments &&
+            blog.comments.map((comment) => (
+              <li key={`${comment._id}`}>{comment.comment}</li>
+            ))}
+        </ul>
       </div>
     )
   }

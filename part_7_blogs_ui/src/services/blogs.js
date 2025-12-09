@@ -34,6 +34,17 @@ const update = async (updatedObject) => {
   return response.data
 }
 
+const comment = async (id, comment) => {
+  const config = {
+    headers: { Authorization: tokenStore.getToken() },
+  }
+  const newComment = { comment: comment }
+  console.log('Comment: ', comment)
+  // eslint-disable-next-line prettier/prettier
+  const response = await axios.post(`${baseUrl}/${id}/comments`, newComment, config)
+  return response.data
+}
+
 const remove = async (id) => {
   console.log('Token: ', tokenStore.token)
   const config = {
@@ -43,4 +54,4 @@ const remove = async (id) => {
   return response.data
 }
 
-export default { getAll, getOne, create, update, remove }
+export default { getAll, getOne, create, update, comment, remove }
