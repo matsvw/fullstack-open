@@ -40,7 +40,7 @@ const App = () => {
     error: loadingError,
   } = useQuery({
     queryKey: ['blogs'],
-    queryFn: blogService.getAll,
+    queryFn: blogService.getAllExpanded,
     enabled: !!user, 
     refetchOnWindowFocus: false,
     retry: 1,
@@ -91,19 +91,6 @@ const App = () => {
   const handeLogout = async () => {
     setUser(null);
     window.localStorage.removeItem(loginCookieName);
-  };
-
-  const handleBlogUpdated = (updatedBlog) => {
-    console.log("Update blog: ", updatedBlog)
-    //setBlogs(
-    //  blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog)),
-    //);
-  };
-
-  const handleBlogRemoved = (removedBlog) => {
-    console.log("Remove blog: ", removedBlog)
-    //setBlogs(blogs.filter((blog) => blog.id !== removedBlog.id));
-    notificationDispatch({ type: 'SHOW_MESSAGE', payload: `blog '${removedBlog.title}' removed`, })
   };
 
   const loginForm = () => {
@@ -179,8 +166,6 @@ const App = () => {
               key={blog.id}
               blog={blog}
               user={user}
-              handleBlogUpdated={handleBlogUpdated}
-              handleBlogRemoved={handleBlogRemoved}
             />
           ))}
         </div>

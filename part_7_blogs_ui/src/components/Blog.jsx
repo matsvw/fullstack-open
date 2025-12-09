@@ -1,39 +1,54 @@
 import { useState, useContext } from "react";
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import NotificationContext from '../contexts/NotificationContext'
 import blogService from "../services/blogs";
 
 const Blog = ({
   blog,
   user,
-  handleBlogUpdated,
-  handleBlogRemoved,
 }) => {
+  const queryClient = useQueryClient()
   const { notificationDispatch } = useContext(NotificationContext)
   const [showDetails, setShowDetails] = useState(false);
 
-  const likeBlog = async () => {
-    try {
-      console.log(`Liked blog: ${blog.title}`);
-      // handling the user not needed as the backend will default to the authenticated user
-      const newBlog = { ...blog, likes: blog.likes + 1 };
-      await blogService.update(blog.id, newBlog);
-      handleBlogUpdated(newBlog);
-    } catch (error) {
-      notificationDispatch({ type: 'SHOW_ERROR', payload: `error liking blog: ${error.response.data.error}`, })
+
+  const updateBlogMutation = useMutation({
+    mutationFn: (blog) => blogService.update(blog),
+    onSuccess: (updatedBlog) => {
+      // add expanded user details, as the return from the backend will not contain this
+      updatedBlog.user = { username: user.username, name: user.name, id: user.id };
+      const blogs = queryClient.getQueryData(['blogs'])
+      //queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      queryClient.setQueryData(['blogs'], blogs.map(b => b.id===updatedBlog.id ? updatedBlog : b))
+      notificationDispatch({ type: 'SHOW_MESSAGE', payload: `updated blog '${updatedBlog.title}'`, })
+    },
+    onError: (error) => {
+      console.log(error)
+      notificationDispatch({ type: 'SHOW_ERROR', payload: `Error creating blog: ${error.response.data.error}` })
     }
+  })
+
+  const deleteBlogMutation = useMutation({
+    mutationFn: (blog) => blogService.remove(blog.id),
+    onSuccess: (_, blog) => {
+      const blogs = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(['blogs'], blogs.filter(b => b.id !== blog.id))
+
+      notificationDispatch({ type: 'SHOW_MESSAGE', payload: `blog with title '${blog.title}' was removed`, })
+    },
+    onError: (error) => {
+      console.log(error)
+      notificationDispatch({ type: 'SHOW_ERROR', payload: `Error removing blog: ${error.response.data.error}` })
+    }
+    },
+  )
+
+  const likeBlog = (blogToLike) => {
+    updateBlogMutation.mutate({ ...blogToLike, likes: blogToLike.likes + 1 })
   };
 
-  const removeBlog = async (blog) => {
-    try {
-      if (window.confirm(`Remove blog '${blog.title}' by ${blog.author}?`)) {
-        console.log("Removing blog: ", blog);
-        await blogService.remove(blog.id);
-        // Notify parent component to remove blog from list
-        handleBlogRemoved(blog);
-      }
-    } catch (error) {
-      notificationDispatch({ type: 'SHOW_ERROR', payload: `error removing blog: ${error.response.data.error}`, })
-    }
+  const removeBlog = (blogToRemove) => {
+    deleteBlogMutation.mutate(blogToRemove)
   };
 
   return (
@@ -61,7 +76,7 @@ const Blog = ({
           <div>{blog.url}</div>
           <div>
             likes {blog.likes}
-            <button onClick={likeBlog} style={{ marginLeft: "10px" }}>
+            <button onClick={() => likeBlog(blog)} style={{ marginLeft: "10px" }}>
               like
             </button>
           </div>
