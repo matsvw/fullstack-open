@@ -1,23 +1,28 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
+import Snackbar from '@mui/material/Snackbar'
 import NotificationContext from '../contexts/NotificationContext'
 
 const Notification = () => {
-  const { notification, notificationDispatch } = useContext(NotificationContext)
+  const { notification } = useContext(NotificationContext)
+  const [open, setOpen] = useState(notification ? true : false)
 
-  if (!notification) {
-    return null
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+
+    setOpen(false)
   }
 
-  console.log('Notification triggered: ', notification)
-
-  setTimeout(() => {
-    notificationDispatch({ type: 'HIDE' })
-  }, 3000)
-
   return (
-    <div className={notification.isError ? 'error' : 'notification'}>
-      {notification.message}
-    </div>
+    <Snackbar
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      severity={notification?.isError ? 'error' : 'success'}
+      open={open}
+      autoHideDuration={3000}
+      onClose={handleClose}
+      message={notification?.message}
+    />
   )
 }
 
