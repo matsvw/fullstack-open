@@ -1,11 +1,21 @@
-let token = null
-
-const setToken = (newToken) => {
-  if (newToken) {
-    token = `Bearer ${newToken}`
-  } else {
-    token = null
+class TokenStore {
+  constructor() {
+    this.token = null
+  }
+  setToken(newToken) {
+    console.log('Seting token: ', newToken)
+    if (newToken) {
+      this.token = `Bearer ${newToken}`
+    } else {
+      this.token = null
+    }
+  }
+  getToken() {
+    return this.token
+  }
+  clear() {
+    this.token = null
   }
 }
 
-export default { token, setToken }
+export const tokenStore = new TokenStore()

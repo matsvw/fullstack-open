@@ -1,5 +1,6 @@
 import { useState, useContext, useRef, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import NotificationContext from '../contexts/NotificationContext'
 import UserContext from '../contexts/UserContext'
 import blogService from '../services/blogs'
@@ -76,7 +77,11 @@ const BlogList = () => {
       </div>
       <br />
       {sortedBlogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <div key={`div_${blog.id}`} className="blogStyle" id="blogentry">
+          <Link key={`link_${blog.id}`} to={`/blogs/${blog.id}`}>
+            {blog.title}
+          </Link>
+        </div>
       ))}
     </div>
   )

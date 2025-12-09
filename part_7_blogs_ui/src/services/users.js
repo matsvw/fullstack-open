@@ -1,5 +1,5 @@
 import axios from 'axios'
-import tokenStore from '../helpers/tokenStore'
+import { tokenStore } from '../helpers/tokenStore'
 const baseUrl = '/api/users'
 
 const getAll = async (expand = false) => {
@@ -14,7 +14,7 @@ const getOne = async (id, expand = false) => {
 
 const create = async (newObject) => {
   const config = {
-    headers: { Authorization: tokenStore.token },
+    headers: { Authorization: tokenStore.getToken() },
   }
 
   const response = await axios.post(baseUrl, newObject, config)

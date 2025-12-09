@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom'
 import UserContext from './contexts/UserContext'
 
 import BlogList from './components/BlogList'
+import Blog from './components/Blog'
 import UserList from './components/UserList'
 import User from './components/User'
 import Notification from './components/Notification'
@@ -80,7 +81,7 @@ const App = () => {
         <Route path="/users" element={<UserList />} />
         <Route path="/users/:id" element={<User />} />
         <Route path="/blogs" element={<BlogList />} />
-        <Route path="/blogs/:id" element={<p>Implement this!</p>} />
+        <Route path="/blogs/:id" element={<Blog />} />
         <Route path="/" element={<BlogList />} />
       </Routes>
     </div>

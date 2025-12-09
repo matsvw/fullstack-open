@@ -1,15 +1,30 @@
-import { useState, useContext } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useContext } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import NotificationContext from '../contexts/NotificationContext'
 import UserContext from '../contexts/UserContext'
 import blogService from '../services/blogs'
 
-const Blog = ({ blog }) => {
+const Blog = () => {
   const queryClient = useQueryClient()
-  const { notificationDispatch } = useContext(NotificationContext)
+  const navigate = useNavigate()
   const { userState } = useContext(UserContext)
+  const { notificationDispatch } = useContext(NotificationContext)
   const user = userState.user
-  const [showDetails, setShowDetails] = useState(false)
+  const { id: blogId } = useParams()
+
+  const {
+    data: blog = null,
+    isLoading,
+    isError,
+    error: _,
+  } = useQuery({
+    queryKey: ['blog', blogId],
+    queryFn: () => blogService.getOne(blogId, true),
+    enabled: !!userState.user,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  })
 
   const updateBlogMutation = useMutation({
     mutationFn: (blog) => blogService.update(blog),
@@ -53,6 +68,7 @@ const Blog = ({ blog }) => {
         type: 'SHOW_MESSAGE',
         payload: `blog with title '${blog.title}' was removed`,
       })
+      navigate('/blogs')
     },
     onError: (error) => {
       console.log(error)
@@ -71,26 +87,16 @@ const Blog = ({ blog }) => {
     deleteBlogMutation.mutate(blogToRemove)
   }
 
-  return (
-    <div className="blogStyle" id="blogentry">
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <b>{blog.title}</b>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <p style={{ margin: '0 30px 0 0' }}>{blog.likes}</p>
-          <input
-            type="button"
-            value={showDetails ? 'hide' : 'view'}
-            onClick={() => setShowDetails(!showDetails)}
-          />
-        </div>
-      </div>
-      {showDetails && (
+  if (isLoading) {
+    return <p>Loading users...</p>
+  }
+  if (!userState.user) {
+    return <p>No user logged in!</p>
+  }
+  if (!isError && user) {
+    return (
+      <div>
+        <h3>{blog.title}</h3>
         <div>
           <div>{blog.author}</div>
           <div>{blog.url}</div>
@@ -116,9 +122,9 @@ const Blog = ({ blog }) => {
             remove
           </button>
         </div>
-      )}
-    </div>
-  )
+      </div>
+    )
+  }
 }
 
 export default Blog

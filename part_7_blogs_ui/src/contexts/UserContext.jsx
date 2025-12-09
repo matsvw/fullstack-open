@@ -1,7 +1,7 @@
 import { createContext, useReducer, useEffect, useContext } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import loginService from '../services/login'
-import tokenStore from '../helpers/tokenStore'
+import { tokenStore } from '../helpers/tokenStore'
 import NotificationContext from './NotificationContext'
 
 const initialAuthState = {
