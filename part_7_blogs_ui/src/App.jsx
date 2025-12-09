@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 
 import UserContext from './contexts/UserContext'
 
@@ -9,7 +9,7 @@ import UserList from './components/UserList'
 import User from './components/User'
 import Notification from './components/Notification'
 
-const App = () => {
+const Menu = () => {
   const { login, logout, userState } = useContext(UserContext)
 
   const [username, setUsername] = useState('')
@@ -32,15 +32,29 @@ const App = () => {
     setPassword('')
   }
 
-  const loginForm = () => {
-    if (userState.user) {
-      return (
-        <div>
-          <p>{`${userState.user.name} logged in`}</p>
-          <button onClick={handeLogout}>logout</button>
-        </div>
-      )
-    }
+  if (userState.user) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px', // spacing between items
+          backgroundColor: '#f0f0f0', // light grey background
+          padding: '12px',
+          borderRadius: '6px',
+        }}
+      >
+        <Link to="/blogs" style={{ padding: '4px 8px' }}>
+          blogs
+        </Link>
+        <Link to="/users" style={{ padding: '4px 8px' }}>
+          users
+        </Link>
+        <p style={{ margin: 0 }}>{`${userState.user.name} logged in`}</p>
+        <button onClick={handeLogout}>logout</button>
+      </div>
+    )
+  } else {
     return (
       <form onSubmit={handleLogin}>
         <div>
@@ -69,13 +83,14 @@ const App = () => {
       </form>
     )
   }
+}
 
+const App = () => {
   return (
     <div>
+      <Menu />
       <h1>Blogs Galore!</h1>
       <Notification />
-      <br />
-      {loginForm()}
       <br />
       <Routes>
         <Route path="/users" element={<UserList />} />
