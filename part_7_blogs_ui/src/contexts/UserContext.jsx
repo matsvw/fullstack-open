@@ -1,8 +1,8 @@
-import { createContext, useReducer, useEffect, useContext } from "react";
+import { createContext, useReducer, useEffect, useContext } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import loginService from "../services/login";
-import blogService from "../services/blogs";
-import NotificationContext from "./NotificationContext";
+import loginService from '../services/login'
+import tokenStore from '../helpers/tokenStore'
+import NotificationContext from './NotificationContext'
 
 const initialAuthState = {
   user: null,
@@ -10,7 +10,7 @@ const initialAuthState = {
 }
 
 const userReducer = (state, action) => {
-  console.log("User reducer action:", action);
+  console.log('User reducer action:', action)
 
   switch (action.type) {
     case 'LOGIN_START':
@@ -28,61 +28,57 @@ const userReducer = (state, action) => {
     default:
       return state
   }
-};
+}
 
 const UserContext = createContext({
   userState: null,
   // no-op fallback avoids undefined errors if misused
-  userDispatch: () => { }
+  userDispatch: () => { },
 })
 
 export const UserContextProvider = (props) => {
   const { notificationDispatch } = useContext(NotificationContext)
-  const [userState, userDispatch] = useReducer(userReducer, initialAuthState);
+  const [userState, userDispatch] = useReducer(userReducer, initialAuthState)
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const user = loginService.loadUser();
+    const user = loginService.loadUser()
     if (user) {
       userDispatch({ type: 'COOKIE', payload: user })
-      blogService.setToken(user.token)
+      tokenStore.setToken(user.token)
     }
-  }, []);
+  }, [])
 
   const login = async ({ username, password }) => {
     userDispatch({ type: 'LOGIN_START' })
     try {
-      const user = await loginService.login({ username, password });
+      const user = await loginService.login({ username, password })
       loginService.saveUser(user)
-      // TODO setAuthToken(user.token)?
       userDispatch({ type: 'LOGIN_SUCCESS', payload: user })
-      blogService.setToken(user.token)
+      tokenStore.setToken(user.token)
     } catch (error) {
-      //setAuthToken(undefined)
       loginService.saveUser(null)
-      blogService.setToken(null)
+      tokenStore.setToken(null)
       const message =
         error?.response?.data?.error ?? error?.message ?? 'Unknown login error'
-        userDispatch({ type: 'LOGIN_ERROR', payload: message })
-        notificationDispatch({ type: 'SHOW_ERROR', payload: 'wrong credentials', })
+      userDispatch({ type: 'LOGIN_ERROR', payload: message })
+      notificationDispatch({ type: 'SHOW_ERROR', payload: 'wrong credentials' })
     }
   }
 
   const logout = () => {
     //setAuthToken(undefined)
     loginService.saveUser(null)
-    blogService.setToken(null)
+    tokenStore.setToken(null)
     userDispatch({ type: 'LOGOUT' })
     queryClient.clear()
   }
 
   return (
-    <UserContext.Provider
-      value={{ userState, login, logout, userDispatch }}
-    >
+    <UserContext.Provider value={{ userState, login, logout, userDispatch }}>
       {props.children}
     </UserContext.Provider>
-  );
-};
+  )
+}
 
 export default UserContext

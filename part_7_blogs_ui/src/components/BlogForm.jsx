@@ -1,10 +1,10 @@
-import { useState, useContext } from "react";
+import { useState, useContext } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import NotificationContext from '../contexts/NotificationContext'
 import UserContext from '../contexts/UserContext'
 
-import blogService from "../services/blogs";
+import blogService from '../services/blogs'
 
 const BlogForm = () => {
   const queryClient = useQueryClient()
@@ -16,35 +16,41 @@ const BlogForm = () => {
     mutationFn: blogService.create,
     onSuccess: (newBlog) => {
       // add expanded user details, as the return from the backend will not contain this
-      newBlog.user = { username: user.username, name: user.name, id: user.id };
+      newBlog.user = { username: user.username, name: user.name, id: user.id }
       const blogs = queryClient.getQueryData(['blogs'])
       //queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
       queryClient.setQueryData(['blogs'], blogs.concat(newBlog))
-      notificationDispatch({ type: 'SHOW_MESSAGE', payload: `a new blog '${newBlog.title}' by ${newBlog.author} added`, })
+      notificationDispatch({
+        type: 'SHOW_MESSAGE',
+        payload: `a new blog '${newBlog.title}' by ${newBlog.author} added`,
+      })
     },
     onError: (error) => {
       console.log(error)
-      notificationDispatch({ type: 'SHOW_ERROR', payload: `Error creating blog: ${error.response.data.error}` })
-    }
+      notificationDispatch({
+        type: 'SHOW_ERROR',
+        payload: `Error creating blog: ${error.response.data.error}`,
+      })
+    },
   })
 
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
 
   const createBlog = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
     newBlogMutation.mutate({
       title,
       author,
-      url
+      url,
     })
 
-    setTitle("")
-    setAuthor("");
-    setUrl("");
-  };
+    setTitle('')
+    setAuthor('')
+    setUrl('')
+  }
 
   return (
     <div>
@@ -54,10 +60,10 @@ const BlogForm = () => {
       <form
         onSubmit={createBlog}
         style={{
-          display: "grid",
-          gridTemplateColumns: "100px 1fr",
-          gap: "10px",
-          maxWidth: "400px",
+          display: 'grid',
+          gridTemplateColumns: '100px 1fr',
+          gap: '10px',
+          maxWidth: '400px',
         }}
       >
         <label htmlFor="title">title</label>
@@ -84,12 +90,12 @@ const BlogForm = () => {
           onChange={({ target }) => setUrl(target.value)}
         />
 
-        <button type="submit" style={{ gridColumn: "span 2" }}>
+        <button type="submit" style={{ gridColumn: 'span 2' }}>
           create
         </button>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default BlogForm;
+export default BlogForm

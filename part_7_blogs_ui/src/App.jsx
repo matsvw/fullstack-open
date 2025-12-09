@@ -1,59 +1,20 @@
-import { useState, useEffect, useRef, useContext, useMemo } from "react";
-import { useQuery } from '@tanstack/react-query'
+import { useState, useContext } from 'react'
+import { Routes, Route } from 'react-router-dom'
 
-import NotificationContext from './contexts/NotificationContext'
 import UserContext from './contexts/UserContext'
 
-import Togglable from "./components/Toggable";
-import Blog from "./components/Blog";
-import BlogForm from "./components/BlogForm";
-import Notification from "./components/Notification";
-import blogService from "./services/blogs";
+import BlogList from './components/BlogList'
+import UserList from './components/UserList'
+import Notification from './components/Notification'
 
 const App = () => {
-  const { notificationDispatch } = useContext(NotificationContext)
   const { login, logout, userState } = useContext(UserContext)
 
-  const blogFormRef = useRef();
-
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [sortAscending, setSortAscending] = useState(true);
-
-  // Conditionally fetch when user exists
-  const {
-    data: blogs = [],
-    isLoading,
-    isError,
-    error: loadingError,
-  } = useQuery({
-    queryKey: ['blogs'],
-    queryFn: blogService.getAllExpanded,
-    enabled: !!userState.user,
-    refetchOnWindowFocus: false,
-    retry: 1,
-  })
-
-  const sortedBlogs = useMemo(() => {
-    const list = blogs ?? []
-    const copy = [...list]
-    copy.sort((a, b) => (sortAscending ? a.likes - b.likes : b.likes - a.likes))
-    return copy
-  }, [blogs, sortAscending])
-
-  const toggleSort = () => setSortAscending((s) => !s)
-
-  useEffect(() => {
-    if (isError) {
-      notificationDispatch({
-        type: 'SHOW_ERROR',
-        payload: loadingError?.message ?? 'Failed to load blogs',
-      })
-    }
-  }, [isError, loadingError, notificationDispatch])
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleLogin = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
     await login({ username, password })
 
@@ -61,13 +22,13 @@ const App = () => {
       setUsername('')
       setPassword('')
     }
-  };
+  }
 
   const handeLogout = async () => {
-    await logout();
+    await logout()
     setUsername('')
     setPassword('')
-  };
+  }
 
   const loginForm = () => {
     if (userState.user) {
@@ -76,7 +37,7 @@ const App = () => {
           <p>{`${userState.user.name} logged in`}</p>
           <button onClick={handeLogout}>logout</button>
         </div>
-      );
+      )
     }
     return (
       <form onSubmit={handleLogin}>
@@ -104,57 +65,25 @@ const App = () => {
         </div>
         <button type="submit">login</button>
       </form>
-    );
-  };
-
-  const blogList = () => {
-    if (isLoading) {
-      <p>Loading blogs...</p>
-    }
-    if (userState.user) {
-      return (
-        <div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "50% 50%",
-              gap: "10px",
-              maxWidth: "50%",
-            }}
-          >
-            <div>
-              <Togglable buttonLabel="new blog" ref={blogFormRef}>
-                <BlogForm />
-                <br />
-              </Togglable>
-            </div>
-            <div style={{ float: "right", textAlign: "right" }}>
-              <button onClick={toggleSort}>
-                sort likes {sortAscending ? "ascending" : "descending"}
-              </button>
-            </div>
-          </div>
-          <br />
-          {sortedBlogs.map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-            />
-          ))}
-        </div>
-      );
-    }
-  };
+    )
+  }
 
   return (
     <div>
-      <h2>blogs</h2>
+      <h1>Blogs Galore!</h1>
       <Notification />
+      <br />
       {loginForm()}
       <br />
-      {blogList()}
+      <Routes>
+        <Route path="/users" element={<UserList />} />
+        <Route path="/users/:id" element={<p>Implement this!</p>} />
+        <Route path="/blogs" element={<BlogList />} />
+        <Route path="/blogs/:id" element={<p>Implement this!</p>} />
+        <Route path="/" element={<BlogList />} />
+      </Routes>
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
