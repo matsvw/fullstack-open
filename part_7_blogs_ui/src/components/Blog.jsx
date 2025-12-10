@@ -1,16 +1,19 @@
 import { useContext, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 
-import { Typography, Box, Button, TextField } from '@mui/material'
+import { Typography, Box, Button, TextField, IconButton } from '@mui/material'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import DeleteIcon from '@mui/icons-material/Delete'
+//import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import LinkIcon from '@mui/icons-material/Link'
 
 import NotificationContext from '../contexts/NotificationContext'
 import UserContext from '../contexts/UserContext'
 import blogService from '../services/blogs'
 import NoContent from './NoContent'
 import Alert from './Alert'
+import CommentForm from './CommentForm'
 
 const Blog = () => {
   const queryClient = useQueryClient()
@@ -20,7 +23,6 @@ const Blog = () => {
   const [alertPrompt, setAlertPrompt] = useState('')
   const [alertPayload, setAlertPayload] = useState('')
   const [alertAction, setAlertAction] = useState('')
-  const [blogComment, setBlogComment] = useState('')
 
   const { userState } = useContext(UserContext)
   const { notificationDispatch } = useContext(NotificationContext)
@@ -65,36 +67,6 @@ const Blog = () => {
       notificationDispatch({
         type: 'SHOW_ERROR',
         payload: `Error updating blog: ${error.response.data.error}`,
-      })
-    },
-  })
-
-  const commentBlogMutation = useMutation({
-    mutationFn: ({ blog, comment }) => blogService.comment(blog.id, comment),
-    onSuccess: (updatedBlog) => {
-      updatedBlog.user = blog.user // copy user details as they are not expanded here
-      queryClient.setQueryData(['blogs'], (prev) => {
-        // If there is no data yet, skip this
-        if (!prev) return prev
-
-        return prev.map((b) => (b.id === updatedBlog.id ? updatedBlog : b))
-      })
-
-      queryClient.setQueryData(['blog', updatedBlog.id], () => {
-        return updatedBlog
-      })
-
-      notificationDispatch({
-        type: 'SHOW_MESSAGE',
-        payload: `Commented on blog '${updatedBlog.title}'`,
-      })
-      setBlogComment('')
-    },
-    onError: (error) => {
-      console.log(error)
-      notificationDispatch({
-        type: 'SHOW_ERROR',
-        payload: `Error commenting blog: ${error.response.data.error}`,
       })
     },
   })
@@ -157,12 +129,6 @@ const Blog = () => {
     setAlertOpen(true)
   }
 
-  const commentBlog = (event, blog) => {
-    event.preventDefault()
-    console.log(blogComment)
-    commentBlogMutation.mutate({ blog, comment: blogComment })
-  }
-
   if (isLoading || !userState.user) {
     return (
       <NoContent
@@ -187,13 +153,13 @@ const Blog = () => {
           payload={alertPayload}
           onClose={onCloseAlert}
         />
-        <Typography variant="h6" component="div" sx={{ mb: '1.5rem' }}>
+        <Typography variant="h6" sx={{ mb: '1.5rem' }}>
           {blog.title}
         </Typography>
-        <Typography variant="body1" component="div" sx={{ mb: '1rem' }}>
+        <Typography variant="body1" sx={{ mb: '1rem' }}>
           Author: {blog.author}
         </Typography>
-        <Typography variant="body1" component="div" sx={{ mb: '1rem' }}>
+        <Typography variant="body1" sx={{ mb: '1rem' }}>
           Url:{' '}
           <a href={blog.url} target="_blank">
             {blog.url}
@@ -206,8 +172,16 @@ const Blog = () => {
         >
           Likes: {blog.likes}
         </Typography>
-        <Typography variant="body1" component="div" sx={{ mb: '1rem' }}>
+        <Typography variant="body1" sx={{ mb: '1rem' }}>
           Added by: {blog.user?.name ?? 'unknown user'}
+          <IconButton
+            component={Link}
+            aria-label="open-user"
+            to={`/users/${blog.user?.id}`}
+            sx={{ ml: 'auto' }}
+          >
+            <LinkIcon />
+          </IconButton>
         </Typography>
         <br />
         <Button
@@ -227,44 +201,17 @@ const Blog = () => {
           Like
         </Button>
 
-        <form
-          onSubmit={(event) => commentBlog(event, blog)}
-          id="comment-blog-form"
-          style={{ marginTop: '1rem' }}
-        >
-          <TextField
-            required
-            margin="dense"
-            id="comment"
-            name="comment"
-            label="Comment"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={blogComment}
-            onChange={(e) => setBlogComment(e.target.value)}
-          />
-        </form>
-        <Button
-          type="submit"
-          variant="outlined"
-          form="comment-blog-form"
-          disabled={blogComment.length < 3}
-        >
-          Add Comment
-        </Button>
+        <CommentForm blog={blog} />
 
-        <Typography
-          variant="h6"
-          component="div"
-          sx={{ mb: '1.5rem', mt: '1.5rem' }}
-        >
+        <Typography variant="body1" sx={{ fontWeight: 600, mt: '1.5rem' }}>
           Comments
         </Typography>
         <ul>
           {blog.comments &&
-            blog.comments.map((comment) => (
-              <li key={`${comment._id}`}>{comment.comment}</li>
+            blog.comments.map((c) => (
+              <li key={`${c._id}`}>
+                <Typography variant="body1">{c.comment}</Typography>
+              </li>
             ))}
         </ul>
       </Box>

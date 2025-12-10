@@ -1,6 +1,11 @@
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
+
+import { Typography, Box, IconButton } from '@mui/material'
+//import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import LinkIcon from '@mui/icons-material/Link'
+
 import UserContext from '../contexts/UserContext'
 import userService from '../services/users'
 import NoContent from './NoContent'
@@ -33,15 +38,35 @@ const User = () => {
   }
   if (!isError && user) {
     return (
-      <div>
-        <h3>{user.name}</h3>
-        <h4>Added blogs:</h4>
+      <Box
+        sx={{
+          width: '100%',
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: '1.5rem' }}>
+          {user.name}
+        </Typography>
+        <Typography variant="body1" sx={{ fontWeight: 600, mt: '1.5rem' }}>
+          Added blogs
+        </Typography>
         <ul>
           {user.blogs.map((blog) => (
-            <li key={blog.id}>{blog.title}</li>
+            <li key={blog.id}>
+              <Typography variant="body1">
+                {blog.title}
+                <IconButton
+                  component={Link}
+                  aria-label="open-blog"
+                  to={`/blogs/${blog.id}`}
+                  sx={{ ml: 'auto' }}
+                >
+                  <LinkIcon />
+                </IconButton>
+              </Typography>
+            </li>
           ))}
         </ul>
-      </div>
+      </Box>
     )
   }
 }

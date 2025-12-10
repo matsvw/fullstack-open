@@ -1,6 +1,6 @@
 import { useState, useContext, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { Typography, Box, Stack, Paper, IconButton } from '@mui/material'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
@@ -67,7 +67,7 @@ const BlogList = () => {
   return (
     <Box sx={{ width: '100%' }}>
       <BlogForm open={showBlogForm} onClose={closeBlogForm} />
-      <Typography variant="h5" component="div" sx={{ mb: '1.5rem' }}>
+      <Typography variant="h5" sx={{ mb: '1.5rem' }}>
         Blogs
       </Typography>
       <Box sx={{ display: 'flex' }}>
@@ -110,7 +110,7 @@ const BlogList = () => {
                 Liked {blog.likes} times
               </Typography>
               <IconButton
-                component={RouterLink}
+                component={Link}
                 aria-label="open-blog"
                 to={`/blogs/${blog.id}`}
                 sx={{ ml: 'auto' }}
