@@ -3,6 +3,7 @@ import { useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import UserContext from '../contexts/UserContext'
 import userService from '../services/users'
+import NoContent from './NoContent'
 
 const User = () => {
   const { id: userId } = useParams()
@@ -21,11 +22,14 @@ const User = () => {
     retry: 1,
   })
 
-  if (isLoading) {
-    return <p>Loading users...</p>
-  }
-  if (!userState.user) {
-    return <p>No user logged in!</p>
+  if (isLoading || !userState.user) {
+    return (
+      <NoContent
+        isError={false}
+        isLoading={isLoading}
+        noUser={!userState.user}
+      />
+    )
   }
   if (!isError && user) {
     return (

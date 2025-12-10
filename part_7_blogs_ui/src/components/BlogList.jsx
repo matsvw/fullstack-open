@@ -1,18 +1,23 @@
-import { useState, useContext, useRef, useMemo, useEffect } from 'react'
+import { useState, useContext, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
+
+import { Typography, Box, Stack, Paper, IconButton } from '@mui/material'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import SwapVertIcon from '@mui/icons-material/SwapVert'
+import AddIcon from '@mui/icons-material/Add'
+
 import NotificationContext from '../contexts/NotificationContext'
 import UserContext from '../contexts/UserContext'
 import blogService from '../services/blogs'
-import Toggable from './Toggable'
+import NoContent from './NoContent'
 import BlogForm from './BlogForm'
-import Blog from './Blog'
 
 const BlogList = () => {
   const { userState } = useContext(UserContext)
   const { notificationDispatch } = useContext(NotificationContext)
   const [sortAscending, setSortAscending] = useState(true)
-  const blogFormRef = useRef()
+  const [showBlogForm, setShowBlogForm] = useState(false)
 
   // Conditionally fetch when user exists
   const {
@@ -27,6 +32,10 @@ const BlogList = () => {
     refetchOnWindowFocus: false,
     retry: 1,
   })
+
+  const closeBlogForm = () => {
+    setShowBlogForm(false)
+  }
 
   const sortedBlogs = useMemo(() => {
     const list = blogs ?? []
@@ -46,44 +55,73 @@ const BlogList = () => {
     }
   }, [isError, loadingError, notificationDispatch])
 
-  if (isLoading) {
-    return <p>Loading blogs...</p>
-  }
-  if (!userState.user) {
-    return <p>No user logged in!</p>
+  if (isLoading || !userState.user) {
+    return (
+      <NoContent
+        isError={false}
+        isLoading={isLoading}
+        noUser={!userState.user}
+      />
+    )
   }
   return (
-    <div>
-      <h3>Blogs</h3>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '50% 50%',
-          gap: '10px',
-          maxWidth: '50%',
-        }}
-      >
-        <div>
-          <Toggable buttonLabel="new blog" ref={blogFormRef}>
-            <BlogForm />
-            <br />
-          </Toggable>
-        </div>
-        <div style={{ float: 'right', textAlign: 'right' }}>
-          <button onClick={toggleSort}>
-            sort likes {sortAscending ? 'ascending' : 'descending'}
-          </button>
-        </div>
-      </div>
-      <br />
-      {sortedBlogs.map((blog) => (
-        <div key={`div_${blog.id}`} className="blogStyle" id="blogentry">
-          <Link key={`link_${blog.id}`} to={`/blogs/${blog.id}`}>
-            {blog.title}
-          </Link>
-        </div>
-      ))}
-    </div>
+    <Box sx={{ width: '100%' }}>
+      <BlogForm open={showBlogForm} onClose={closeBlogForm} />
+      <Typography variant="h5" component="div" sx={{ mb: '1.5rem' }}>
+        Blogs
+      </Typography>
+      <Box sx={{ display: 'flex' }}>
+        <IconButton
+          aria-label="create-blog"
+          onClick={() => setShowBlogForm(true)}
+        >
+          <AddIcon />
+        </IconButton>
+        <IconButton
+          aria-label="sort-blogs"
+          sx={{ ml: 'auto', mr: '0.5rem' }}
+          onClick={toggleSort}
+        >
+          <SwapVertIcon />
+        </IconButton>
+      </Box>
+
+      <Stack spacing={1}>
+        {sortedBlogs.map((blog) => (
+          <Paper
+            key={`div_${blog.id}`}
+            sx={{ padding: '0.2rem' }}
+            variant="outlined"
+          >
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr auto',
+                gap: 1,
+                alignItems: 'center',
+                ml: '0.5rem',
+                mr: '0.5rem',
+              }}
+            >
+              <Typography variant="body1" component="div">
+                {blog.title}
+              </Typography>
+              <Typography variant="body1" component="div">
+                Liked {blog.likes} times
+              </Typography>
+              <IconButton
+                component={RouterLink}
+                aria-label="open-blog"
+                to={`/blogs/${blog.id}`}
+                sx={{ ml: 'auto' }}
+              >
+                <OpenInNewIcon />
+              </IconButton>
+            </Box>
+          </Paper>
+        ))}
+      </Stack>
+    </Box>
   )
 }
 

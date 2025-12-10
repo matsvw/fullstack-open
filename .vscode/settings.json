@@ -1,2 +1,11 @@
 {
+  // Run the formatter on save
+  "editor.formatOnSave": true,
+
+  // (Optional but useful) Let ESLint also fix non-format issues on save
+  // like unused vars, etc.
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
 }

@@ -56,6 +56,7 @@ export const UserContextProvider = (props) => {
       loginService.saveUser(user)
       userDispatch({ type: 'LOGIN_SUCCESS', payload: user })
       tokenStore.setToken(user.token)
+      return { status: 'authenticated', user }
     } catch (error) {
       loginService.saveUser(null)
       tokenStore.setToken(null)
@@ -63,6 +64,7 @@ export const UserContextProvider = (props) => {
         error?.response?.data?.error ?? error?.message ?? 'Unknown login error'
       userDispatch({ type: 'LOGIN_ERROR', payload: message })
       notificationDispatch({ type: 'SHOW_ERROR', payload: 'wrong credentials' })
+      return { status: 'error', error: message }
     }
   }
 
