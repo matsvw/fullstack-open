@@ -20,8 +20,8 @@ const NewBook = ({ show = true }) => {
     event.preventDefault()
 
     console.log('add book...')
-    //const res = await addBook({ variables: { title, author, published: Number(published), genres } })
-    addBook({ variables: { title, author, published: Number(published), genres } })
+    await addBook({ variables: { title, author, published: Number(published), genres } })
+    //addBook({ variables: { title, author, published: Number(published), genres } })
     //console.log('Awaited result: ', res)
   }
 
