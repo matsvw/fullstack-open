@@ -11,7 +11,7 @@ const NewBook = ({ show = true }) => {
 
 
   const [addBook] = useMutation(queries.ADD_BOOK, {
-    refetchQueries: [{ query: queries.ALL_BOOKS }],
+    refetchQueries: [{ query: queries.ALL_BOOKS }, { query: queries.ALL_AUTHORS }],
     onError: (error) => handleError(error),
     onCompleted: (data) => handleCompleted(data)
   })

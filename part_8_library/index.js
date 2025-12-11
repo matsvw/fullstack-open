@@ -2,11 +2,13 @@ const { ApolloServer } = require('@apollo/server')
 const { GraphQLError } = require('graphql')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 const { v1: uuid } = require('uuid')
+const jwt = require('jsonwebtoken')
 
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 const Book = require('./models/book')
 const Author = require('./models/author')
+const User = require('./models/user')
 
 require('dotenv').config()
 
@@ -23,10 +25,20 @@ mongoose.connect(MONGODB_URI)
   })
 
 const typeDefs = /* GraphQL */`
+  type User {
+    username: String!
+    friends: [User!]!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
+
   type Book {
     title: String!
     published: Int
-    author: String!
+    author: Author!
     genres: [String]
     id: ID!
   }
@@ -43,6 +55,7 @@ const typeDefs = /* GraphQL */`
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    me: User
   }
 
   type Mutation { 
@@ -56,24 +69,40 @@ const typeDefs = /* GraphQL */`
       name: String!
       setBornTo: Int!
     ): Author
+    createUser(
+      username: String!
+    ): User
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 `
 
 const resolvers = {
   Query: {
-    bookCount: () => async () => Book.collection.countDocuments(),
-    authorCount: () => async () => Author.collection.countDocuments(),
+    bookCount: async () => Book.collection.countDocuments(),
+    authorCount: async () => Author.collection.countDocuments(),
+    me: (root, args, context) => {
+      return context.currentUser
+    },
     allBooks: async (root, args) => {
       const filter = {}
 
-      //TODO - currently this is not case insensitive
-      if (args.author) {
-        filter.author = args.author
-      }
       if (args.genre) {
-        filter.genres = args.genre //this should match any
+        filter.genres = { $regex: args.genre, $options: "i" }
       }
-      const filteredBooks = Book.find(filter)
+      console.log(filter)
+      let filteredBooks = await Book
+        .find(filter)
+        .populate('author')
+
+      //console.log(filteredBooks)
+      if (args.author) {
+        // cannot filter in Mongo on linked object as populate comes after filter (possible using pipeline)
+        filteredBooks = filteredBooks.filter(b => b.author?.name && b.author.name.toLowerCase().includes(args.author.toLowerCase()))
+      }
+
       return filteredBooks
     },
 
@@ -82,18 +111,20 @@ const resolvers = {
       const selections = info.fieldNodes?.[0]?.selectionSet?.selections ?? []
       const requestedBookCount = selections.some(sel => sel.kind === 'Field' && sel.name.value === 'bookCount')
 
-      //TODO - could this be done with a single roundtrip?
-      const authors = Author.find({})
-      if (!requestedBookCount) {
-        return authors
+      let authors = await Author.find({}).lean() //need to convert to lean here for the mapping below to work
+      if (requestedBookCount) {
+        console.log('Calculating book count for each author')
+        const books = await Book.find({}).lean()
+        authors = authors.map(a => {
+          const bookCount = books.filter(b => b.author.equals(a._id)).length
+          return { ...a, id: a._id, bookCount }
+        })
       }
-      console.log('Calculating book count for each author')
-      const authorBookCount = authors.map(a => {
-        const books = Book.find({})
-        const bookCount = books.filter(b => b.author === a.name).length
-        return { ...a, bookCount }
-      })
-      return authorBookCount
+      else {
+        authors = authors.map(a => ({ ...a, id: a._id }))
+      }
+      //console.log(authors)
+      return authors
     },
   },
   Mutation: {
@@ -109,27 +140,91 @@ const resolvers = {
         })
       }
 
-      // Unique check for title removed as MongoDB should handle that
-
-      //TODO - this is now not case insensitive
-      const author = await Author.findOne({ name: args.author })
+      let author = await Author.findOne({ name: { $regex: args.author, $options: "i" } })
       if (!author) {
-        const newAuthor = new Author({ name: args.author }) //birthyear not known
-        newAuthor.save()
+        author = new Author({ name: args.author }) //birthyear not known
+        try {
+          await author.save()
+        } catch (error) {
+          console.log(error)
+          console.log(error.message)
+          throw new GraphQLError(error.message ?? 'Adding new author failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.author,
+              error
+            }
+          })
+        }
       }
 
-      const newBook = new Book({ ...args })
-      newBook.save()
+      const newBook = new Book({ ...args, author: author })
+
+      try {
+        await newBook.save()
+      } catch (error) {
+        console.log(error)
+        console.log(error.message)
+        throw new GraphQLError(error.message ?? 'Adding new book failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: newBook,
+            error
+          }
+        })
+      }
       return newBook
     },
     editAuthor: async (root, args) => {
-      //TODO - this is now not case insensitive
-      const author = await Author.findOne({ name: args.name })
+      //Case insensitive partial match might not be the best here
+      const author = await Author.findOne({ name: { $regex: args.name, $options: "i" } })
       if (author) {
         author.born = args.setBornTo
-        author.save()
+        try {
+          await author.save()
+        } catch (error) {
+          throw new GraphQLError(error.message ?? 'Updating author failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.setBornTo,
+              error
+            }
+          })
+        }
       }
       return author
+    },
+    createUser: async (root, args) => {
+      const user = new User({ username: args.username })
+
+      return user.save()
+        .catch(error => {
+          throw new GraphQLError(error.message ?? 'Creating the user failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.username,
+              error
+            }
+          })
+        })
+    },
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username })
+
+      if (!user || args.password !== 'secret') {
+        throw new GraphQLError('W rong credentials', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+      }
+
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      }
+
+      return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
     },
   }
 }
@@ -141,6 +236,17 @@ const server = new ApolloServer({
 
 startStandaloneServer(server, {
   listen: { port: 4000 },
+  context: async ({ req, res }) => {
+    const auth = req ? req.headers.authorization : null
+    if (auth && auth.startsWith('Bearer ')) {
+      const decodedToken = jwt.verify(
+        auth.substring(7), process.env.JWT_SECRET
+      )
+      const currentUser = await User
+        .findById(decodedToken.id).populate('friends')
+      return { currentUser }
+    }
+  },
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`)
 })
