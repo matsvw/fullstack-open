@@ -1,4 +1,5 @@
 const { ApolloServer } = require('@apollo/server')
+const { GraphQLError } = require('graphql')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 const { v1: uuid } = require('uuid')
 
@@ -159,11 +160,22 @@ const resolvers = {
   },
   Mutation: {
     addBook: (root, args) => {
-      if (books.find(p => p.title.toLowerCase() === args.title.toLowerCase())) { //keeping this as it makes sense.
-        throw new GraphQLError('Name must be unique', {
+
+      // Apparently the default check treats an empty string as a valid value
+      if (!args.title || !args.author) {
+        throw new GraphQLError('Title and author are mandatory', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            invalidArgs: args.name
+            invalidArgs: [args.title, args.author]
+          }
+        })
+      }
+
+      if (books.find(p => p.title.toLowerCase() === args.title.toLowerCase())) { //keeping this as it makes sense.
+        throw new GraphQLError('Title must be unique', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title
           }
         })
       }
