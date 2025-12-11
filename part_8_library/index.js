@@ -1,5 +1,6 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
+const { v1: uuid } = require('uuid')
 
 let authors = [
   {
@@ -28,17 +29,9 @@ let authors = [
 ]
 
 /*
- * Suomi:
- * Saattaisi olla järkevämpää assosioida kirja ja sen tekijä tallettamalla kirjan yhteyteen tekijän nimen sijaan tekijän id
- * Yksinkertaisuuden vuoksi tallennamme kuitenkin kirjan yhteyteen tekijän nimen
- *
  * English:
  * It might make more sense to associate a book with its author by storing the author's id in the context of the book instead of the author's name
  * However, for simplicity, we will store the author's name in connection with the book
- *
- * Spanish:
- * Podría tener más sentido asociar un libro con su autor almacenando la id del autor en el contexto del libro en lugar del nombre del autor
- * Sin embargo, por simplicidad, almacenaremos el nombre del autor en conexión con el libro
 */
 
 let books = [
@@ -93,14 +86,40 @@ let books = [
   },
 ]
 
-/*
-  you can remove the placeholder query once your first one has been implemented 
-*/
-
 const typeDefs = /* GraphQL */`
+  type Book {
+    title: String!
+    published: Int
+    author: String!
+    genres: [String]
+    id: ID!
+  }
+
+  type Author {
+    name: String!
+    born: Int
+    id: ID!
+    bookCount: Int
+  }
+
   type Query {
     bookCount: Int!
     authorCount: Int!
+    allBooks(author: String, genre: String): [Book!]!
+    allAuthors: [Author!]!
+  }
+
+  type Mutation { 
+    addBook(
+      title: String!
+      published: Int
+      author: String!
+      genres: [String]
+    ): Book
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
   }
 `
 
@@ -108,7 +127,67 @@ const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
+    allBooks: (root, args) => {
+      let filteredBooks = books
+      if (args.author) {
+        const auth = args.author.toLowerCase()
+        filteredBooks = filteredBooks.filter(b => b.author.toLowerCase().includes(auth)) // partial, case insensitive, match ok for author
+      }
+      if (args.genre) {
+        const genre = args.genre.toLowerCase()
+        filteredBooks = filteredBooks.filter(b => b.genres.map(g => g.toLowerCase()).includes(genre)) // genre name must match, but is not case sensitive
+      }
+
+      return filteredBooks
+    },
+
+    allAuthors: (root, args, context, info) => {
+
+      const selections = info.fieldNodes?.[0]?.selectionSet?.selections ?? []
+      const requestedBookCount = selections.some(sel => sel.kind === 'Field' && sel.name.value === 'bookCount')
+
+      if (!requestedBookCount) {
+        return authors
+      }
+      console.log('Calculating book count for each author')
+      const authorBookCount = authors.map(a => {
+        const bookCount = books.filter(b => b.author === a.name).length
+        return { ...a, bookCount }
+      })
+      return authorBookCount
+    },
   },
+  Mutation: {
+    addBook: (root, args) => {
+      if (books.find(p => p.title.toLowerCase() === args.title.toLowerCase())) { //keeping this as it makes sense.
+        throw new GraphQLError('Name must be unique', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name
+          }
+        })
+      }
+
+      let author = authors.find(a => a.name.toLowerCase() === args.author.toLowerCase())
+      if (!author) {
+        author = { name: args.author, id: uuid() } //birthyear not known
+        authors = authors.concat(author)
+      }
+
+      const book = { ...args, author: author.name, id: uuid() } // update author name to ensure case matches
+      books = books.concat(book)
+      return book
+    },
+    editAuthor: (root, args) => {
+      const author = authors.find(a => args.name.toLowerCase() === a.name.toLowerCase())
+      if (author) {
+        author.born = args.setBornTo
+        authors = authors.map(a => a.id === author.id ? author : a)
+      }
+
+      return author
+    },
+  }
 }
 
 const server = new ApolloServer({

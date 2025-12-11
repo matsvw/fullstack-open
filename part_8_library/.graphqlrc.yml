@@ -1,0 +1,3 @@
+schema: "http://localhost:4000/graphql"  # or a local file like "schema.graphql" or "schema.json"
+documents:
+  - "src/**/*.{js,ts,jsx,tsx,graphql,gql}"
