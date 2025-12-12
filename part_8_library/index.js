@@ -27,7 +27,7 @@ mongoose.connect(MONGODB_URI)
 const typeDefs = /* GraphQL */`
   type User {
     username: String!
-    friends: [User!]!
+    favoriteGenre: String!
     id: ID!
   }
 
@@ -71,6 +71,7 @@ const typeDefs = /* GraphQL */`
     ): Author
     createUser(
       username: String!
+      favoriteGenre: String!
     ): User
     login(
       username: String!
@@ -78,6 +79,16 @@ const typeDefs = /* GraphQL */`
     ): Token
   }
 `
+
+const isAuthenticated = (context, throwError = true) => {
+  const isAuth = Boolean(context?.currentUser)
+  if (!isAuth && throwError) {
+    throw new GraphQLError('Unauthorized', {
+      extensions: { code: 'UNAUTHENTICATED', http: { status: 401 } },
+    });
+  }
+  return isAuth
+}
 
 const resolvers = {
   Query: {
@@ -128,7 +139,8 @@ const resolvers = {
     },
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
+      isAuthenticated(context)
 
       // Apparently the default check treats an empty string as a valid value
       if (!args.title || !args.author) {
@@ -175,7 +187,9 @@ const resolvers = {
       }
       return newBook
     },
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
+      isAuthenticated(context)
+
       //Case insensitive partial match might not be the best here
       const author = await Author.findOne({ name: { $regex: args.name, $options: "i" } })
       if (author) {
@@ -195,7 +209,7 @@ const resolvers = {
       return author
     },
     createUser: async (root, args) => {
-      const user = new User({ username: args.username })
+      const user = new User({ ...args })
 
       return user.save()
         .catch(error => {
@@ -243,7 +257,7 @@ startStandaloneServer(server, {
         auth.substring(7), process.env.JWT_SECRET
       )
       const currentUser = await User
-        .findById(decodedToken.id).populate('friends')
+        .findById(decodedToken.id)
       return { currentUser }
     }
   },

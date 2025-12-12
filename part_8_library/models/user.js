@@ -8,12 +8,11 @@ const schema = new mongoose.Schema({
     minlength: 3,
     unique: true
   },
-  friends: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }
-  ],
+  favoriteGenre: {
+    type: String,
+    required: true,
+    minlength: 3
+  }
 })
 
 schema.plugin(uniqueValidator)
