@@ -72,7 +72,7 @@ const Books = ({ show = true }) => {
       <br />
       <div>
         {genres.map(g => (
-          <button onClick={() => filterGenre(g)} >{g}</button>
+          <button key={`bt_${g}`} onClick={() => filterGenre(g)} >{g}</button>
         ))}
         <button onClick={() => filterGenre('')} >all genres</button>
       </div>

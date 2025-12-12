@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@apollo/client/react'
 import queries from '../helpers/queries'
 
 const LoginForm = ({ setError, setToken }) => {
+  const nav = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -17,6 +19,7 @@ const LoginForm = ({ setError, setToken }) => {
       alert('User logged in successfully')
       setUsername('')
       setPassword('')
+      nav('/')
     }
   })
 
