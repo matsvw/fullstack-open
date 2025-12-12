@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation } from '@apollo/client/react'
 import queries from '../helpers/queries'
 
-const NewBook = ({ show = true }) => {
+const NewBook = ({ show = true, token }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
@@ -20,6 +20,7 @@ const NewBook = ({ show = true }) => {
     event.preventDefault()
 
     console.log('add book...')
+    console.log(token) //TODO -add this somewhere
     await addBook({ variables: { title, author, published: Number(published), genres } })
     //addBook({ variables: { title, author, published: Number(published), genres } })
     //console.log('Awaited result: ', res)
