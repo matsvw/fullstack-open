@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@apollo/client/react'
 import queries from '../helpers/queries'
 
-const LoginForm = ({ setError, setToken }) => {
+const LoginForm = ({ setToken }) => {
   const nav = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -12,11 +12,11 @@ const LoginForm = ({ setError, setToken }) => {
   const [login, result] = useMutation(queries.LOGIN, {
     onError: (error) => {
       console.log(error)
-      setError(error.graphQLErrors[0].message)
+      alert(error.message)
     },
     onCompleted: (data) => {
       console.log('Success: ', data)
-      alert('User logged in successfully')
+      //alert('User logged in successfully')
       setUsername('')
       setPassword('')
       nav('/')
@@ -43,6 +43,7 @@ const LoginForm = ({ setError, setToken }) => {
         <div>
           username <input
             value={username}
+            autoComplete='username'
             onChange={({ target }) => setUsername(target.value)}
           />
         </div>
@@ -50,6 +51,7 @@ const LoginForm = ({ setError, setToken }) => {
           password <input
             type='password'
             value={password}
+            autoComplete='current-password'
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>

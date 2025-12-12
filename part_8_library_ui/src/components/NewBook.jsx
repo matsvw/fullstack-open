@@ -17,7 +17,7 @@ const NewBook = ({ show = true }) => {
     update: (cache, response) => {
       cache.updateQuery({ query: queries.ALL_BOOKS }, ({ allBooks }) => {
         return {
-          allBooks: allBooks.concat(response.data.addBook),
+          allBooks: (allBooks ?? []).concat(response.data.addBook), //allBooks might be null if it's already cleared
         }
       })
     },
@@ -26,8 +26,12 @@ const NewBook = ({ show = true }) => {
   const submit = async (event) => {
     event.preventDefault()
 
+    const genreList = genres
+    if (genre && !genreList.find(g => g === genre)) {
+      genreList.push(genre) //Add by default. Need to do it like this since setGenres is not fast enough.
+    }
     console.log('add book...')
-    await addBook({ variables: { title, author, published: Number(published), genres } })
+    await addBook({ variables: { title, author, published: Number(published), genres: genreList } })
     //addBook({ variables: { title, author, published: Number(published), genres } })
     //console.log('Awaited result: ', res)
   }
@@ -49,8 +53,10 @@ const NewBook = ({ show = true }) => {
   }
 
   const addGenre = () => {
-    setGenres(genres.concat(genre))
-    setGenre('')
+    if (genre) {
+      setGenres(genres.concat(genre))
+      setGenre('')
+    }
   }
 
   if (!show) {

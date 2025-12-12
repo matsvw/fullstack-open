@@ -43,10 +43,10 @@ const UpdateForm = ({ authors, show = true }) => {
       <form onSubmit={submitYear}>
         <div>
           author
-          <select onChange={({ target }) => setAuthor(target.value)} >
-            <option value='' selected={'' === author}>Select author</option>
+          <select value={author} onChange={({ target }) => setAuthor(target.value)} >
+            <option value='' >Select author</option>
             {authors.map((a) => (
-              <option key={a.id} value={a.name} selected={a.name === author}>{a.name}</option>
+              <option key={a.id} value={a.name}>{a.name}</option>
             ))}
           </select>
         </div>

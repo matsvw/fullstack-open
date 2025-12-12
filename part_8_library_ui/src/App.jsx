@@ -13,21 +13,21 @@ const App = () => {
   const client = useApolloClient()
   const [token, setToken] = useState(localStorage.getItem('library-user-token')) //try to get from local storage by default
 
-  const logout = () => {
+  const logout = async () => {
     setToken(null)
     localStorage.clear()
-    client.resetStore()
+    await client.resetStore() // this needs to be awaited to prevent navigation before it has completed
   }
 
   return (
     <div>
       <div>
-        <Link to='/authors'>authors</Link>&nbsp;&nbsp;
-        <Link to='/books'>books</Link>&nbsp;&nbsp;
-        {token && <Link to='/add'>add book</Link>}&nbsp;&nbsp;
-        {token && <Link to='/recommendations'>recommendations</Link>}&nbsp;&nbsp;
-        {!token && <Link to='/login'>login</Link>}&nbsp;&nbsp;
-        {token && <Link to='/' onClick={logout}>logout</Link>}
+        <Link style={{ paddingRight: '10px' }} to='/authors'>authors</Link>
+        <Link style={{ paddingRight: '10px' }} to='/books'>books</Link>
+        {token && <Link style={{ paddingRight: '10px' }} to='/add'>add book</Link>}
+        {token && <Link style={{ paddingRight: '10px' }} to='/recommendations'>recommendations</Link>}
+        {!token && <Link style={{ paddingRight: '10px' }} to='/login'>login</Link>}
+        {token && <Link style={{ paddingRight: '10px' }} to='/' onClick={logout}>logout</Link>}
         <br />
         <br />
       </div>
