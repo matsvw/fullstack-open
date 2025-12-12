@@ -84,16 +84,16 @@ const Authors = ({ show = true, token }) => {
       <table>
         <thead>
           <tr>
-            <th>name</th>
-            <th>born</th>
-            <th>books</th>
+            <th style={{ textAlign: 'left' }}>name</th>
+            <th style={{ textAlign: 'left' }}>born</th>
+            <th style={{ textAlign: 'left' }}>books</th>
           </tr>
         </thead>
         <tbody>
           {authors.map((a) => (
             <tr key={a.id}>
-              <td>{a.name}</td>
-              <td>{a.born}</td>
+              <td style={{ paddingRight: '30px' }}>{a.name}</td>
+              <td style={{ paddingRight: '30px' }}>{a.born}</td>
               <td>{a.bookCount}</td>
             </tr>
           ))}
