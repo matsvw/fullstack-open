@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation } from '@apollo/client/react'
 import queries from '../helpers/queries'
 
-const NewBook = ({ show = true, token }) => {
+const NewBook = ({ show = true }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
@@ -11,16 +11,22 @@ const NewBook = ({ show = true, token }) => {
 
 
   const [addBook] = useMutation(queries.ADD_BOOK, {
-    refetchQueries: [{ query: queries.ALL_BOOKS }, { query: queries.ALL_AUTHORS }],
+    refetchQueries: [{ query: queries.ALL_AUTHORS }], // Keeping ALL_AUTHORS for now
     onError: (error) => handleError(error),
-    onCompleted: (data) => handleCompleted(data)
+    onCompleted: (data) => handleCompleted(data),
+    update: (cache, response) => {
+      cache.updateQuery({ query: queries.ALL_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(response.data.addBook),
+        }
+      })
+    },
   })
 
   const submit = async (event) => {
     event.preventDefault()
 
     console.log('add book...')
-    console.log(token) //TODO -add this somewhere
     await addBook({ variables: { title, author, published: Number(published), genres } })
     //addBook({ variables: { title, author, published: Number(published), genres } })
     //console.log('Awaited result: ', res)

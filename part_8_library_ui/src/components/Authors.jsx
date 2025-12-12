@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client/react'
 import queries from '../helpers/queries'
 
-const Authors = ({ show = true }) => {
-  const authorsResult = useQuery(queries.ALL_AUTHORS, { skip: !show })
+const UpdateForm = ({ authors, show = true }) => {
   const [author, setAuthor] = useState('')
   const [born, setBorn] = useState('')
 
@@ -11,18 +10,6 @@ const Authors = ({ show = true }) => {
     onError: (error) => handleError(error),
     onCompleted: (data) => handleCompleted(data),
   })
-
-  if (!show) {
-    return null
-  }
-  if (authorsResult.loading) {
-    return <div>loading...</div>
-  }
-  if (authorsResult.error) {
-    return <div>error loading data: {authorsResult.error}</div>
-  }
-
-  const authors = authorsResult.data.allAuthors
 
   const submitYear = async (event) => {
     event.preventDefault()
@@ -47,6 +34,49 @@ const Authors = ({ show = true }) => {
     alert(`Error updating birthyear: ${error.message}`)
   }
 
+  if (!show || !authors) {
+    return null
+  }
+  return (
+    <div>
+      <h2>set birthyear</h2>
+      <form onSubmit={submitYear}>
+        <div>
+          author
+          <select onChange={({ target }) => setAuthor(target.value)} >
+            <option value='' selected={'' === author}>Select author</option>
+            {authors.map((a) => (
+              <option key={a.id} value={a.name} selected={a.name === author}>{a.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          born
+          <input
+            value={born}
+            onChange={({ target }) => setBorn(target.value)}
+          />
+        </div>
+        <button type="submit">update author</button>
+      </form >
+    </div>
+  )
+}
+
+
+const Authors = ({ show = true, token }) => {
+  const authorsResult = useQuery(queries.ALL_AUTHORS, { skip: !show })
+  const authors = authorsResult?.data?.allAuthors
+
+  if (!show) {
+    return null
+  }
+  if (authorsResult.loading) {
+    return <div>loading...</div>
+  }
+  if (authorsResult.error) {
+    return <div>error loading data: {authorsResult.error}</div>
+  }
 
   return (
     <div>
@@ -70,26 +100,7 @@ const Authors = ({ show = true }) => {
         </tbody>
       </table>
       <br />
-      <h2>set birthyear</h2>
-      <form onSubmit={submitYear}>
-        <div>
-          author
-          <select onChange={({ target }) => setAuthor(target.value)} >
-            <option value='' selected={'' === author}>Select author</option>
-            {authors.map((a) => (
-              <option key={a.id} value={a.name} selected={a.name === author}>{a.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          born
-          <input
-            value={born}
-            onChange={({ target }) => setBorn(target.value)}
-          />
-        </div>
-        <button type="submit">update author</button>
-      </form >
+      <UpdateForm show={Boolean(token)} authors={authors} />
     </div >
   )
 }
