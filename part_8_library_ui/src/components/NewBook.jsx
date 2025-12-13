@@ -11,16 +11,9 @@ const NewBook = ({ show = true }) => {
 
 
   const [addBook] = useMutation(queries.ADD_BOOK, {
-    refetchQueries: [{ query: queries.ALL_AUTHORS }], // Keeping ALL_AUTHORS for now
+    refetchQueries: [],
     onError: (error) => handleError(error),
     onCompleted: (data) => handleCompleted(data),
-    update: (cache, response) => {
-      cache.updateQuery({ query: queries.ALL_BOOKS }, ({ allBooks }) => {
-        return {
-          allBooks: (allBooks ?? []).concat(response.data.addBook), //allBooks might be null if it's already cleared
-        }
-      })
-    },
   })
 
   const submit = async (event) => {
@@ -32,8 +25,6 @@ const NewBook = ({ show = true }) => {
     }
     console.log('add book...')
     await addBook({ variables: { title, author, published: Number(published), genres: genreList } })
-    //addBook({ variables: { title, author, published: Number(published), genres } })
-    //console.log('Awaited result: ', res)
   }
 
   const handleCompleted = (data) => {
