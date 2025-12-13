@@ -52,6 +52,8 @@ const resolvers = {
 
       let authors = await Author.find({}).lean() //need to convert to lean here for the mapping below to work
       if (requestedBookCount) {
+        // I would argue that I solved the n+1 solution with my first solution. I never considered creating a separate query for the bookCount for each author.
+        // It would be trickier if you could filter the list of authors. Then you would have to consider when it makes sense to get all books, and when to get a filtered list of books.
         console.log('Calculating book count for each author')
         const books = await Book.find({}).lean()
         authors = authors.map(a => {
