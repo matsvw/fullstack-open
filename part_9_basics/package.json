@@ -1,0 +1,19 @@
+{
+  "name": "part_9_basics",
+  "version": "1.0.0",
+  "description": "TypeScript Exercises",
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "ts-node": "ts-node",
+    "calculate": "ts-node calculator.ts",
+    "bmi": "ts-node bmiCalculator.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
