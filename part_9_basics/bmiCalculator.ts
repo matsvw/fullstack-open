@@ -1,11 +1,11 @@
 import { getNumber } from "./utils/inputHelper";
 
-interface BmiInput {
+export interface BmiInput {
   heightInCentimeres: number;
   weightInKilograms: number;
 }
 
-const calculateBmi = (bmiInput: BmiInput): string => {
+export const calculateBmi = (bmiInput: BmiInput): string => {
   const sq: number = (bmiInput.heightInCentimeres / 100.0) ** 2;
   const bmi: number = bmiInput.weightInKilograms / sq;
 
@@ -51,8 +51,10 @@ const parseBmiArguments = (args: string[]): BmiInput => {
 };
 
 try {
-  const values: BmiInput = parseBmiArguments(process.argv);
-  console.log(calculateBmi(values));
+  if (require.main === module) {
+    const values: BmiInput = parseBmiArguments(process.argv);
+    console.log(calculateBmi(values));
+  }
 } catch (error: unknown) {
   let errorMessage = "Something went wrong: ";
   if (error instanceof Error) {
