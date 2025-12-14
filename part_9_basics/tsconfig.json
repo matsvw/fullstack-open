@@ -1,8 +1,20 @@
 {
-  "compilerOptions":{
+  "compilerOptions": {
     "target": "ESNext",
     "module": "CommonJS",
     "strict": true,
-    "noImplicitAny": false // flag implicit "any" 
+    "noImplicitAny": false, // flag implicit "any"
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "declaration": true
   }
 }
