@@ -1,6 +1,11 @@
-const calculateBmi = (height: number, weight: number): string => {
-  const sq: number = (height / 100.0) ** 2;
-  const bmi: number = weight / sq;
+interface BmiInput {
+  heightInCentimeres: number;
+  weightInKilograms: number;
+}
+
+const calculateBmi = (bmiInput: BmiInput): string => {
+  const sq: number = (bmiInput.heightInCentimeres / 100.0) ** 2;
+  const bmi: number = bmiInput.weightInKilograms / sq;
 
   console.log("Calculated BMI: ", bmi);
   switch (true) {
@@ -33,5 +38,27 @@ const calculateBmi = (height: number, weight: number): string => {
   }
 };
 
-console.log(calculateBmi(180, 74));
-//console.log(calculateBmi(185, 82));
+const parseBmiArguments = (args: string[]): BmiInput => {
+  if (args.length < 4) throw new Error("Not enough arguments");
+  if (args.length > 4) throw new Error("Too many arguments");
+
+  if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
+    return {
+      heightInCentimeres: Number(args[2]),
+      weightInKilograms: Number(args[3]),
+    };
+  } else {
+    throw new Error("Provided values were not numbers!");
+  }
+};
+
+try {
+  const values: BmiInput = parseBmiArguments(process.argv);
+  console.log(calculateBmi(values));
+} catch (error: unknown) {
+  let errorMessage = "Something went wrong: ";
+  if (error instanceof Error) {
+    errorMessage += error.message;
+  }
+  console.log(errorMessage);
+}

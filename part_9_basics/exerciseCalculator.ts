@@ -1,3 +1,8 @@
+interface ExerciseInput {
+  dailyExerciseInHours: number[];
+  averageTarget: number;
+}
+
 interface ExerciseCalculationResult {
   periodLength: number;
   trainingDays: number;
@@ -9,15 +14,17 @@ interface ExerciseCalculationResult {
 }
 
 const calculateExercises = (
-  dailyHours: number[],
-  target: number = 1.0,
+  parameters: ExerciseInput,
 ): ExerciseCalculationResult => {
-  const totalHours = dailyHours.reduce((accumulator, current) => {
-    return accumulator + current;
-  }, 0);
+  const totalHours = parameters.dailyExerciseInHours.reduce(
+    (accumulator, current) => {
+      return accumulator + current;
+    },
+    0,
+  );
 
-  const averageHours = totalHours / dailyHours.length;
-  const diff = averageHours / target;
+  const averageHours = totalHours / parameters.dailyExerciseInHours.length;
+  const diff = averageHours / parameters.averageTarget;
 
   let rating: number = 2;
   let ratingDesc: string = "Close enough";
@@ -31,16 +38,49 @@ const calculateExercises = (
   }
 
   const ret: ExerciseCalculationResult = {
-    periodLength: dailyHours.length,
-    trainingDays: dailyHours.filter((h) => h > 0).length,
-    success: averageHours >= target,
+    periodLength: parameters.dailyExerciseInHours.length,
+    trainingDays: parameters.dailyExerciseInHours.filter((h) => h > 0).length,
+    success: averageHours >= parameters.averageTarget,
     rating: rating,
     ratingDescription: ratingDesc,
-    target: target,
+    target: parameters.averageTarget,
     average: averageHours,
   };
 
   return ret;
 };
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
+const getNumber = (input: string): number => {
+  if (!isNaN(Number(input))) {
+    return Number(input);
+  } else {
+    throw new Error("Provided values were not numbers!");
+  }
+};
+
+const parseExerciseArguments = (args: string[]): ExerciseInput => {
+  if (args.length < 4) throw new Error("Not enough arguments");
+  const dailyHours: number[] = [];
+
+  const target = getNumber(args[2]);
+
+  for (let a = 3; a < args.length; a++) {
+    dailyHours.push(getNumber(args[a]));
+  }
+
+  return {
+    dailyExerciseInHours: dailyHours,
+    averageTarget: target,
+  };
+};
+
+try {
+  const values: ExerciseInput = parseExerciseArguments(process.argv);
+  console.log(calculateExercises(values));
+} catch (error: unknown) {
+  let errorMessage = "Something went wrong: ";
+  if (error instanceof Error) {
+    errorMessage += error.message;
+  }
+  console.log(errorMessage);
+}
