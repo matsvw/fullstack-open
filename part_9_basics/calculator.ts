@@ -1,13 +1,14 @@
 import { getNumber } from "./utils/inputHelper";
 
-type Operation = "multiply" | "add" | "divide";
-interface CalculatorValues {
+export type CalcOperation = "multiply" | "add" | "divide";
+
+export interface CalculatorValues {
   value1: number;
   value2: number;
-  operation: Operation;
+  operation: CalcOperation;
 }
 
-const calculator = (values: CalculatorValues): number => {
+export const calculator = (values: CalculatorValues): number => {
   switch (values.operation) {
     case "multiply":
       return values.value1 * values.value2;
@@ -28,14 +29,17 @@ const parseCalculatorArguments = (args: string[]): CalculatorValues => {
   return {
     value1: getNumber(args[2]),
     value2: getNumber(args[3]),
-    operation: (args.length === 4 || !args[4] ? "add" : args[4]) as Operation,
+    operation: (args.length === 4 || !args[4]
+      ? "add"
+      : args[4]) as CalcOperation,
   };
 };
 
 try {
-  const values: CalculatorValues = parseCalculatorArguments(process.argv);
-
-  console.log(calculator(values));
+  if (require.main === module) {
+    const values: CalculatorValues = parseCalculatorArguments(process.argv);
+    console.log(calculator(values));
+  }
 } catch (error: unknown) {
   let errorMessage = "Something went wrong: ";
   if (error instanceof Error) {

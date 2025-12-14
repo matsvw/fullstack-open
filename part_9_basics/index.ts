@@ -1,5 +1,6 @@
 import express from "express";
 import { getNumber } from "./utils/inputHelper";
+import { CalcOperation, CalculatorValues, calculator } from "./calculator";
 import { BmiInput, calculateBmi } from "./bmiCalculator";
 
 const app = express();
@@ -42,6 +43,27 @@ app.get("/bmi", (req, res) => {
     }
     res.status(400).json({ error: errMsg });
   }
+});
+
+app.post("/calculate", (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value1, value2, op } = req.body;
+
+  if (!value1 || isNaN(Number(value1)) || !value2 || isNaN(Number(value2))) {
+    res
+      .status(400)
+      .json({ error: "Both value1 and value2 must be submitted and numbers" });
+    return;
+  }
+
+  const calcValues: CalculatorValues = {
+    value1: Number(value1),
+    value2: Number(value2),
+    operation: op as CalcOperation,
+  };
+
+  const result = calculator(calcValues);
+  res.json({ result });
 });
 
 const PORT = 3003;
