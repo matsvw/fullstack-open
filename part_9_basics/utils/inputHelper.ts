@@ -9,6 +9,10 @@ export const getNumber = (
     if (useDefault) {
       return defaultNumber;
     }
-    throw new Error("Provided values were not numbers!");
+    throw new Error("malformatted parameters");
   }
 };
+
+export function isNumberArray(val: unknown): val is number[] {
+  return Array.isArray(val) && val.every((el) => typeof el === "number");
+}

@@ -1,11 +1,11 @@
 import { getNumber } from "./utils/inputHelper";
 
-interface ExerciseInput {
+export interface ExerciseInput {
   dailyExerciseInHours: number[];
   averageTarget: number;
 }
 
-interface ExerciseCalculationResult {
+export interface ExerciseCalculationResult {
   periodLength: number;
   trainingDays: number;
   success: boolean;
@@ -15,7 +15,7 @@ interface ExerciseCalculationResult {
   average: number;
 }
 
-const calculateExercises = (
+export const calculateExercises = (
   parameters: ExerciseInput,
 ): ExerciseCalculationResult => {
   const totalHours = parameters.dailyExerciseInHours.reduce(
@@ -69,8 +69,10 @@ const parseExerciseArguments = (args: string[]): ExerciseInput => {
 };
 
 try {
-  const values: ExerciseInput = parseExerciseArguments(process.argv);
-  console.log(calculateExercises(values));
+  if (require.main === module) {
+    const values: ExerciseInput = parseExerciseArguments(process.argv);
+    console.log(calculateExercises(values));
+  }
 } catch (error: unknown) {
   let errorMessage = "Something went wrong: ";
   if (error instanceof Error) {
