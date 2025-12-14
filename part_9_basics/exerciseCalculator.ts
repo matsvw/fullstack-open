@@ -1,3 +1,5 @@
+import { getNumber } from "./utils/inputHelper";
+
 interface ExerciseInput {
   dailyExerciseInHours: number[];
   averageTarget: number;
@@ -48,14 +50,6 @@ const calculateExercises = (
   };
 
   return ret;
-};
-
-const getNumber = (input: string): number => {
-  if (!isNaN(Number(input))) {
-    return Number(input);
-  } else {
-    throw new Error("Provided values were not numbers!");
-  }
 };
 
 const parseExerciseArguments = (args: string[]): ExerciseInput => {

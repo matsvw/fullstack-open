@@ -1,3 +1,5 @@
+import { getNumber } from "./utils/inputHelper";
+
 interface BmiInput {
   heightInCentimeres: number;
   weightInKilograms: number;
@@ -42,14 +44,10 @@ const parseBmiArguments = (args: string[]): BmiInput => {
   if (args.length < 4) throw new Error("Not enough arguments");
   if (args.length > 4) throw new Error("Too many arguments");
 
-  if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
-    return {
-      heightInCentimeres: Number(args[2]),
-      weightInKilograms: Number(args[3]),
-    };
-  } else {
-    throw new Error("Provided values were not numbers!");
-  }
+  return {
+    heightInCentimeres: getNumber(args[2]),
+    weightInKilograms: getNumber(args[3]),
+  };
 };
 
 try {

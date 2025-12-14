@@ -1,3 +1,5 @@
+import { getNumber } from "./utils/inputHelper";
+
 type Operation = "multiply" | "add" | "divide";
 interface CalculatorValues {
   value1: number;
@@ -23,15 +25,11 @@ const parseCalculatorArguments = (args: string[]): CalculatorValues => {
   if (args.length < 4) throw new Error("Not enough arguments");
   if (args.length > 5) throw new Error("Too many arguments");
 
-  if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
-    return {
-      value1: Number(args[2]),
-      value2: Number(args[3]),
-      operation: (args.length === 4 || !args[4] ? "add" : args[4]) as Operation,
-    };
-  } else {
-    throw new Error("Provided values were not numbers!");
-  }
+  return {
+    value1: getNumber(args[2]),
+    value2: getNumber(args[3]),
+    operation: (args.length === 4 || !args[4] ? "add" : args[4]) as Operation,
+  };
 };
 
 try {
