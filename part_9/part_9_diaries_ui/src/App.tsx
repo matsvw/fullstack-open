@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
-import type { DiaryEntry, NewDiaryEntry, Weather, Visibility } from "./types";
+import {
+  type DiaryEntry,
+  type NewDiaryEntry,
+  type Weather,
+  type Visibility,
+  VISIBILITY_VALUES,
+  WEATHER_VALUES,
+} from "./types";
 import { apiBaseUrl } from "./constants";
 
 import diaryService from "./services/diaries";
@@ -60,23 +67,41 @@ const App = () => {
         <label htmlFor="diary-date">Date: </label>
         <input
           name="diary-date"
+          type="date"
           value={diaryDate}
-          onChange={(event) => setDiaryDate(event.target.value)}
+          onChange={(event) => {
+            //console.log(event.target.value.toString());
+            setDiaryDate(event.target.value.toString());
+          }}
         />
         <br />
         <label htmlFor="diary-visibility">Visibility: </label>
-        <input
-          name="diary-visibility"
-          value={diaryVisibility}
-          onChange={(event) => setDiaryVisibility(event.target.value)}
-        />
+        {VISIBILITY_VALUES.map((v, i) => (
+          <div key={`r_v_${i}`} style={{ display: "inline" }}>
+            <input
+              type="radio"
+              id={v}
+              name="diary-visibility"
+              value={v}
+              onChange={() => setDiaryVisibility(v)}
+            />
+            <label htmlFor={v}>{v}</label>
+          </div>
+        ))}
         <br />
         <label htmlFor="diary-weather">Weather: </label>
-        <input
-          name="diary-weather"
-          value={diaryWeather}
-          onChange={(event) => setDiaryWeather(event.target.value)}
-        />
+        {WEATHER_VALUES.map((v, i) => (
+          <div key={`r_w_${i}`} style={{ display: "inline" }}>
+            <input
+              type="radio"
+              id={v}
+              name="diary-weather"
+              value={v}
+              onChange={() => setDiaryWeather(v)}
+            />
+            <label htmlFor={v}>{v}</label>
+          </div>
+        ))}
         <br />
         <label htmlFor="diary-comment">Comment: </label>
         <input

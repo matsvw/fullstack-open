@@ -7,6 +7,7 @@ export const Weather = {
 } as const;
 
 export type Weather = (typeof Weather)[keyof typeof Weather];
+export const WEATHER_VALUES = Object.values(Weather);
 
 export const Visibility = {
   Great: "great",
@@ -16,6 +17,7 @@ export const Visibility = {
 } as const;
 
 export type Visibility = (typeof Visibility)[keyof typeof Visibility];
+export const VISIBILITY_VALUES = Object.values(Visibility);
 
 export interface NewDiaryEntry {
   date: string;
