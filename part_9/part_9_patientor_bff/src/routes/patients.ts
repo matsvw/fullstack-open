@@ -1,10 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import express, { Response } from "express";
-import { toNewPatientEntry } from "../utils";
+import express, { Response, Request, NextFunction } from "express";
 import patientService from "../services/patientService";
-import { NewPatientEntry, NonSensitivePatientEntry } from "../types";
+import {
+  PatientEntry,
+  NewPatientEntry,
+  NonSensitivePatientEntry,
+  NewPatientSchema,
+} from "../types";
+
+import { errorMiddleware } from "../utils";
 
 const router = express.Router();
+
+const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    NewPatientSchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
 
 router.get("/", (_req, res: Response<NonSensitivePatientEntry[]>) => {
   console.log("Fetching non-sensitive patient data");
@@ -21,12 +35,19 @@ router.get("/:id", (req, res) => {
   }
 });
 
-router.post("/", (req, res) => {
-  console.log("Saving a patient!");
-  const newPatientEntry: NewPatientEntry = toNewPatientEntry(req.body);
-  const addedEntry: NewPatientEntry =
-    patientService.addPatient(newPatientEntry);
-  res.json(addedEntry);
-});
+router.post(
+  "/",
+  newPatientParser,
+  (
+    req: Request<unknown, unknown, NewPatientEntry>,
+    res: Response<PatientEntry>,
+  ) => {
+    console.log("Saving a patient!");
+    const addedEntry = patientService.addPatient(req.body);
+    res.json(addedEntry);
+  },
+);
+
+router.use(errorMiddleware); // this needs to come last
 
 export default router;
