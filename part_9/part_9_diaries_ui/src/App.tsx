@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import type { DiaryEntry, NewDiaryEntry, Weather, Visibility } from "./types";
 import { apiBaseUrl } from "./constants";
 
@@ -45,35 +45,40 @@ const App = () => {
         setDiaryComment("");
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
+      if (error instanceof AxiosError) {
+        alert(error?.response?.data ?? error);
+      } else {
+        alert(error);
+      }
     }
   };
 
   return (
     <div>
       <form onSubmit={DiaryCreation}>
-        <label htmlFor="diary-date">Date </label>
+        <label htmlFor="diary-date">Date: </label>
         <input
           name="diary-date"
           value={diaryDate}
           onChange={(event) => setDiaryDate(event.target.value)}
         />
         <br />
-        <label htmlFor="diary-visibility">Visibility </label>
+        <label htmlFor="diary-visibility">Visibility: </label>
         <input
           name="diary-visibility"
           value={diaryVisibility}
           onChange={(event) => setDiaryVisibility(event.target.value)}
         />
         <br />
-        <label htmlFor="diary-weather">Weather </label>
+        <label htmlFor="diary-weather">Weather: </label>
         <input
           name="diary-weather"
           value={diaryWeather}
           onChange={(event) => setDiaryWeather(event.target.value)}
         />
         <br />
-        <label htmlFor="diary-comment">Comment </label>
+        <label htmlFor="diary-comment">Comment: </label>
         <input
           name="diary-comment"
           value={diaryComment}
