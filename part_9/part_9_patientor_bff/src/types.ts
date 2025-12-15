@@ -6,17 +6,18 @@ export enum Gender {
   Other = "other",
 }
 
-export interface PatientEntry {
+export interface Patient {
   id: string;
   name: string;
   dateOfBirth: string;
   ssn: string;
   gender: Gender;
   occupation: string;
+  entries: Entry[];
 }
 
 export type NewPatientEntry = z.infer<typeof NewPatientSchema>;
-export type NonSensitivePatientEntry = Omit<PatientEntry, "ssn">;
+export type NonSensitivePatient = Omit<Patient, "ssn" | "entries">;
 //export type NonSensitivePatientEntry = Pick<PatientEntry, 'id' | 'name' |'occupation'>;
 
 export interface DiagnoseEntry {
@@ -25,10 +26,16 @@ export interface DiagnoseEntry {
   latin?: string;
 }
 
+export const EntrySchema = z.object({});
+
 export const NewPatientSchema = z.object({
   name: z.string(),
   dateOfBirth: z.string(),
   ssn: z.string(),
   gender: z.enum(Gender),
   occupation: z.string(),
+  entries: z.array(EntrySchema).default([]),
 });
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface Entry {}
