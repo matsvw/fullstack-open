@@ -9,7 +9,7 @@ on:
     branches:
       - main
     paths:
-      - 'part_3/**'
+      - 'part_0-7/part_3/**'
   workflow_dispatch:
 
 jobs:
@@ -26,21 +26,21 @@ jobs:
         with:
           node-version: '24.x'
           cache: 'npm'
-          cache-dependency-path: part_3/package-lock.json
+          cache-dependency-path: part_0-7/part_3/package-lock.json
       
       - name: Install dependencies
-        working-directory: part_3
+        working-directory: part_0-7/part_3
         run: npm ci
 
       # Optional: Run build step if needed (skip if pure Node/Express)
       - name: Build app
-        working-directory: part_3
+        working-directory: part_0-7/part_3
         run: npm run build
 
       # Archive the app into a zip file
       - name: Archive app
         run: |
-          cd part_3
+          cd part_0-7/part_3
           zip -r ../part_3.zip .
   
       - name: Upload artifact for deployment job (part_3 only)
