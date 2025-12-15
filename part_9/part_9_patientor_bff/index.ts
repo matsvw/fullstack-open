@@ -1,12 +1,27 @@
-import express from "express";
+import express, { RequestHandler } from "express";
+import cors, { CorsOptions } from "cors";
 const app = express();
+
+const PORT = 3001;
+
+const corsOptions: CorsOptions = {
+  origin: ["http://localhost:5173"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+};
+
+// Create a typed middleware instance
+const corsMiddleware: RequestHandler = cors(corsOptions);
+
+// Use the middleware
+app.use(corsMiddleware);
+
 app.use(express.json());
+app.use(cors()); //enable for all routes
 
-const PORT = 3000;
-
-app.get("/ping", (_req, res) => {
+app.get("/api/ping", (_req, res) => {
   console.log("someone pinged here");
-  res.send("pong");
+  res.send(`pong at ${new Date().toLocaleString()}`);
 });
 
 app.listen(PORT, () => {
