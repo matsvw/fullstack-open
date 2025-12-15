@@ -42,7 +42,7 @@ const parseGender = (
     return defaultGender;
   }
   if (!isString(value) || !isGender(value)) {
-    throw new Error(`Incorrect gender: ${value}`);
+    throw new Error(`Incorrect gender: ${parseString(value)}`);
   }
   return value;
 };
