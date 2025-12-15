@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
-const logger = require('../utils/logger')
-const Blog = require('../models/blog')
-const User = require('../models/user')
+const logger = require('../utils/logger.js')
+const Blog = require('../models/blog.js')
+const User = require('../models/user.js')
 const { blogList, defaultUser } = require('./testdata.js')
 
 const nonExistingId = async () => {
@@ -17,14 +17,14 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
-const createDefaultUser = async (prefix, cleanStart=true) => {
+const createDefaultUser = async (prefix, cleanStart = true) => {
   if (cleanStart) {
-    await User.deleteMany( {})
+    await User.deleteMany({})
   }
 
   const currentUsers = await usersInDb()
   const userName = `${prefix}${defaultUser.username}` //username needs to be unique for each test file as deleteMany might not be fast enough between tests.
-  logger.info('create default user: ',userName)
+  logger.info('create default user: ', userName)
   const oldDefault = currentUsers.find(u => u.username === userName)
   if (oldDefault) {
     return oldDefault.id

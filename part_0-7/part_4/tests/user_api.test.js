@@ -3,10 +3,10 @@ const assert = require('node:assert')
 
 const mongoose = require('mongoose')
 const supertest = require('supertest')
-const app = require('../app')
+const app = require('../app.js')
 //const logger = require('../utils/logger')
-const User = require('../models/user')
-const helper = require('./test_helper')
+const User = require('../models/user.js')
+const helper = require('./test_helper.js')
 const { defaultUser } = require('./testdata.js')
 
 const api = supertest(app)
