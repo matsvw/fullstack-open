@@ -1,5 +1,9 @@
 import express, { RequestHandler } from "express";
 import cors, { CorsOptions } from "cors";
+
+import patientRouter from "./routes/patients";
+import diagnoseRouter from "./routes/diagnoses";
+
 const app = express();
 
 const PORT = 3001;
@@ -17,7 +21,9 @@ const corsMiddleware: RequestHandler = cors(corsOptions);
 app.use(corsMiddleware);
 
 app.use(express.json());
-app.use(cors()); //enable for all routes
+
+app.use("/api/patients", patientRouter);
+app.use("/api/diaries", diagnoseRouter);
 
 app.get("/api/ping", (_req, res) => {
   console.log("someone pinged here");
