@@ -9,6 +9,52 @@ Content-Type: application/json
 ###
 GET http://localhost:3001/api/patients
 
-
 ###
 GET http://localhost:3001/api/patients/d2773336-f723-11e9-8f0b-362b9e155667
+
+
+###
+POST http://localhost:3001/api/patients/d2773336-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "date": "2025-12-16",
+  "type": "Hospital",
+  "specialist": "MD House",
+  "diagnosisCodes": ["S62.5"],
+  "description": "Testing Hospital",
+  "discharge": {
+    "date": "2015-01-16",
+    "criteria": "Thumb has healed."
+  }
+}
+
+###
+POST http://localhost:3001/api/patients/d2773336-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "date": "2025-12-16",
+  "type": "OccupationalHealthcare",
+  "specialist": "MD House",
+  "diagnosisCodes":  ["Z57.1", "Z74.3", "M51.2"],
+  "employerName": "HyPD",
+  "description": "Testing OccupationalHealthcare",
+  "sickLeave": {
+    "startDate": "2019-08-05",
+    "endDate": "2019-08-28"
+  }
+}
+
+###
+POST http://localhost:3001/api/patients/d2773336-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "date": "2025-12-16",
+  "type": "HealthCheck",
+  "specialist": "MD House",
+  "diagnosisCodes":  ["Z57.1", "Z74.3", "M51.2"],
+  "description": "Testing HealthCheck",
+  "healthCheckRating": 0
+}
