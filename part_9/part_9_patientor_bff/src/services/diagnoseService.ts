@@ -1,7 +1,7 @@
-import diagnoseData from "../../data/diagnoses";
+import diagnoses from "../../data/diagnoses";
 
 const getEntries = () => {
-  return diagnoseData;
+  return diagnoses;
 };
 
 const addDiagnosis = () => {

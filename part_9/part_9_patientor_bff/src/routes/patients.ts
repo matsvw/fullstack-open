@@ -1,9 +1,9 @@
 import express, { Response, Request, NextFunction } from "express";
 import patientService from "../services/patientService";
 import {
-  PatientEntry,
+  Patient,
   NewPatientEntry,
-  NonSensitivePatientEntry,
+  NonSensitivePatient,
   NewPatientSchema,
 } from "../types";
 
@@ -20,7 +20,7 @@ const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
   }
 };
 
-router.get("/", (_req, res: Response<NonSensitivePatientEntry[]>) => {
+router.get("/", (_req, res: Response<NonSensitivePatient[]>) => {
   console.log("Fetching non-sensitive patient data");
   res.send(patientService.getNonSensitiveEntries());
 });
@@ -38,10 +38,7 @@ router.get("/:id", (req, res) => {
 router.post(
   "/",
   newPatientParser,
-  (
-    req: Request<unknown, unknown, NewPatientEntry>,
-    res: Response<PatientEntry>,
-  ) => {
+  (req: Request<unknown, unknown, NewPatientEntry>, res: Response<Patient>) => {
     console.log("Saving a patient!");
     const addedEntry = patientService.addPatient(req.body);
     res.json(addedEntry);
