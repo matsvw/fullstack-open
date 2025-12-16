@@ -5,7 +5,7 @@ import HealthCheckEntry from "./HealthcheckEntry";
 import OccupationalHealthcareEntry from "./OccupationalHealthcareEntry";
 import HospitalEntry from "./HospitalEntry";
 
-import { Entry, Diagnosis } from "../../types";
+import { Entry, Diagnosis, EntryType } from "../../types";
 import { assertNever } from "../../utils";
 
 interface BaseProps {
@@ -62,19 +62,19 @@ const EntryDetails: React.FC<EntryProps> = ({
   entry,
 }: EntryProps) => {
   switch (entry.type) {
-    case "Hospital":
+    case EntryType.Hospital:
       return (
         <>
           <HospitalEntry entry={entry} diagnoses={diagnoses} />
         </>
       );
-    case "OccupationalHealthcare":
+    case EntryType.OccupationalHealthcare:
       return (
         <>
           <OccupationalHealthcareEntry entry={entry} diagnoses={diagnoses} />
         </>
       );
-    case "HealthCheck":
+    case EntryType.HealthCheck:
       return (
         <>
           <HealthCheckEntry entry={entry} diagnoses={diagnoses} />

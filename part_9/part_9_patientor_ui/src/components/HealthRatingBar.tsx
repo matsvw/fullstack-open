@@ -21,6 +21,7 @@ const HEALTHBAR_TEXTS = [
   "The patient has a low risk of getting sick",
   "The patient has a high risk of getting sick",
   "The patient has a diagnosed condition",
+  "Rating missing",
 ];
 
 const HealthRatingBar = ({ rating }: BarProps) => {
@@ -30,7 +31,7 @@ const HealthRatingBar = ({ rating }: BarProps) => {
         <div>
           <StyledRating
             readOnly
-            value={4 - rating}
+            value={rating === 5 ? null : 4 - rating}
             max={4}
             icon={<Favorite fontSize="inherit" />}
           />

@@ -5,15 +5,29 @@ import {
   NewPatientEntry,
   NonSensitivePatient,
   NewPatientSchema,
+  NewEntrySchema,
+  Entry,
+  NewEntryEntry,
 } from "../types";
 
 import { errorMiddleware } from "../utils";
+
+type EntryRouteParams = { id: string };
 
 const router = express.Router();
 
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
     NewPatientSchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    NewEntrySchema.parse(req.body);
     next();
   } catch (error: unknown) {
     next(error);
@@ -38,9 +52,22 @@ router.get("/:id", (req, res) => {
 router.post(
   "/",
   newPatientParser,
-  (req: Request<unknown, unknown, NewPatientEntry>, res: Response<Patient>) => {
-    console.log("Saving a patient!");
+  (req: Request<unknown, Patient, NewPatientEntry>, res: Response<Patient>) => {
+    console.log("Saving a patient");
     const addedEntry = patientService.addPatient(req.body);
+    res.json(addedEntry);
+  },
+);
+
+router.post(
+  "/:id/entries",
+  newEntryParser,
+  (
+    req: Request<EntryRouteParams, Entry, NewEntryEntry>,
+    res: Response<Entry>,
+  ) => {
+    console.log("Saving an entry");
+    const addedEntry = patientService.addEntry(req.params.id, req.body);
     res.json(addedEntry);
   },
 );

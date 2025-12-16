@@ -13,6 +13,12 @@ export enum HealthCheckRating {
   "CriticalRisk" = 3,
 }
 
+export enum EntryType {
+  HealthCheck = "HealthCheck",
+  OccupationalHealthcare = "OccupationalHealthcare",
+  Hospital = "Hospital",
+}
+
 export interface Diagnosis {
   code: string;
   name: string;
@@ -48,17 +54,17 @@ export const BaseEntrySchema = z.object({
 });
 
 export interface HealthCheckEntry extends BaseEntry {
-  type: "HealthCheck";
+  type: EntryType.HealthCheck;
   healthCheckRating: HealthCheckRating;
 }
 
 const HealthCheckEntrySchema = BaseEntrySchema.extend({
-  type: z.literal("HealthCheck"),
+  type: z.literal(EntryType.HealthCheck),
   healthCheckRating: z.enum(HealthCheckRating),
 });
 
 export interface OccupationalHealthcareEntry extends BaseEntry {
-  type: "OccupationalHealthcare";
+  type: EntryType.OccupationalHealthcare;
   employerName: string;
   sickLeave?: SickLeave | undefined;
 }
@@ -84,13 +90,13 @@ export const SickLeaveSchema = z
   });
 
 export const OccupationalHealthcareEntrySchema = BaseEntrySchema.extend({
-  type: z.literal("OccupationalHealthcare"),
+  type: z.literal(EntryType.OccupationalHealthcare),
   employerName: z.string().min(1),
   sickLeave: SickLeaveSchema.optional(),
 });
 
 export interface HospitalEntry extends BaseEntry {
-  type: "Hospital";
+  type: EntryType.Hospital;
   discharge?: Discharge | undefined;
 }
 
@@ -105,7 +111,7 @@ export const DischargeSchema = z.object({
 });
 
 const HospitalEntrySchema = BaseEntrySchema.extend({
-  type: z.literal("Hospital"),
+  type: z.literal(EntryType.Hospital),
   discharge: DischargeSchema.optional(),
 });
 
@@ -119,6 +125,20 @@ export const EntrySchema = z.discriminatedUnion("type", [
   OccupationalHealthcareEntrySchema,
   HospitalEntrySchema,
 ]);
+
+//Zod schemas for entry without id
+const NewHealthCheckEntrySchema = HealthCheckEntrySchema.omit({ id: true });
+const NewOccupationalHealthcareEntrySchema =
+  OccupationalHealthcareEntrySchema.omit({ id: true });
+const NewHospitalEntrySchema = HospitalEntrySchema.omit({ id: true });
+
+export const NewEntrySchema = z.discriminatedUnion("type", [
+  NewHealthCheckEntrySchema,
+  NewOccupationalHealthcareEntrySchema,
+  NewHospitalEntrySchema,
+]);
+
+export type NewEntryEntry = z.infer<typeof NewEntrySchema>;
 
 // Define special omit for unions
 type UnionOmit<T, K extends string | number | symbol> = T extends unknown

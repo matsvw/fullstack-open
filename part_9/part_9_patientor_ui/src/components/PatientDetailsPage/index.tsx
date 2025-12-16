@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 import TransgenderIcon from "@mui/icons-material/Transgender";
@@ -59,6 +59,8 @@ const PatientDetailsPage = ({ diagnoses }: Props) => {
         {patient.entries.map((e) => (
           <EntryDetails key={`entry_${e.id}`} entry={e} diagnoses={diagnoses} />
         ))}
+        <br />
+        <Button variant="contained">Add new entry</Button>
       </Box>
     </div>
   );

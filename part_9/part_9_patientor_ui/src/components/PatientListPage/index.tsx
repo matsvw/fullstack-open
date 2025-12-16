@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-import { PatientFormValues, Patient } from "../../types";
+import { PatientFormValues, Patient, EntryType } from "../../types";
 import AddPatientModal from "../AddPatientModal";
 
 import HealthRatingBar from "../HealthRatingBar";
@@ -59,6 +59,22 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
     }
   };
 
+  // This does not work, since at this stage we have not loaded entries yet.
+  const getRating = (patient: Patient): number => {
+    if (!patient?.entries) {
+      console.log("No entries");
+      return 4;
+    }
+
+    const entries = patient.entries.reverse();
+    console.log(entries);
+    const rating =
+      entries.find((e) => e.type === EntryType.HealthCheck)
+        ?.healthCheckRating ?? 4;
+
+    return rating;
+  };
+
   return (
     <div className="App">
       <Box>
@@ -84,7 +100,7 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
               <TableCell>{patient.gender}</TableCell>
               <TableCell>{patient.occupation}</TableCell>
               <TableCell>
-                <HealthRatingBar showText={false} rating={1} />
+                <HealthRatingBar rating={getRating(patient)} />
               </TableCell>
             </TableRow>
           ))}
