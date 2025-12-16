@@ -46,9 +46,20 @@ const PatientDetailsPage = () => {
         <Typography variant="body1">
           occupation: {patient.occupation}
         </Typography>
-        {patient.entries.map((_e, i) => (
+        <Typography
+          variant="body1"
+          sx={{ fontWeight: 700, mb: "0.5rem", mt: "1rem" }}
+        >
+          entries
+        </Typography>
+        {patient.entries.map((e, i) => (
           <Typography key={`entry_${i}`} variant="body1">
-            entry todo
+            {e.date} {e.description}
+            <ul>
+              {e.diagnosisCodes?.map((d) => (
+                <li key={d}>{d}</li>
+              ))}
+            </ul>
           </Typography>
         ))}
       </Box>
