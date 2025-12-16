@@ -1,11 +1,10 @@
-import { Rating } from '@mui/material';
-import { Favorite } from '@mui/icons-material';
+import { Rating, Tooltip } from "@mui/material";
+import { Favorite } from "@mui/icons-material";
 
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 
 type BarProps = {
   rating: number;
-  showText: boolean;
 };
 
 const StyledRating = styled(Rating)({
@@ -14,7 +13,7 @@ const StyledRating = styled(Rating)({
   },
   iconHover: {
     color: "#ff3d47",
-  }
+  },
 });
 
 const HEALTHBAR_TEXTS = [
@@ -24,17 +23,19 @@ const HEALTHBAR_TEXTS = [
   "The patient has a diagnosed condition",
 ];
 
-const HealthRatingBar = ({ rating, showText }: BarProps) => {
+const HealthRatingBar = ({ rating }: BarProps) => {
   return (
     <div className="health-bar">
-      <StyledRating
-        readOnly
-        value={4 - rating}
-        max={4}
-        icon={<Favorite fontSize="inherit" />}
-      />
-
-      {showText ? <p>{HEALTHBAR_TEXTS[rating]}</p> : null}
+      <Tooltip title={HEALTHBAR_TEXTS[rating]} placement="bottom-start">
+        <div>
+          <StyledRating
+            readOnly
+            value={4 - rating}
+            max={4}
+            icon={<Favorite fontSize="inherit" />}
+          />
+        </div>
+      </Tooltip>
     </div>
   );
 };

@@ -6,8 +6,9 @@ import MaleIcon from "@mui/icons-material/Male";
 import TransgenderIcon from "@mui/icons-material/Transgender";
 
 import { Patient, Gender, Diagnosis } from "../../types";
-
 import patientService from "../../services/patients";
+
+import EntryDetails from "../EntryDetails";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -37,11 +38,10 @@ const PatientDetailsPage = ({ diagnoses }: Props) => {
       <Box sx={{ mt: "2rem" }}>
         <Typography variant="h6">
           {patient.name}
-          <Box sx={{ ml: "1rem", display: "inline" }}>
-            {patient.gender === Gender.Male && <MaleIcon />}
-            {patient.gender === Gender.Female && <FemaleIcon />}
-            {patient.gender === Gender.Other && <TransgenderIcon />}
-          </Box>
+          {"   "}
+          {patient.gender === Gender.Male && <MaleIcon />}
+          {patient.gender === Gender.Female && <FemaleIcon />}
+          {patient.gender === Gender.Other && <TransgenderIcon />}
         </Typography>
         <Typography variant="body1">ssn: {patient.ssn ?? "unknown"}</Typography>
         <Typography variant="body1">
@@ -56,21 +56,8 @@ const PatientDetailsPage = ({ diagnoses }: Props) => {
         >
           entries
         </Typography>
-        {patient.entries.map((e, i) => (
-          <div key={`entry_${i}`}>
-            <Typography variant="body1">
-              {e.date} {e.description}
-            </Typography>
-            <ul>
-              {e.diagnosisCodes?.map((d) => (
-                <li key={d}>
-                  {d}{" "}
-                  {diagnoses.find((dl) => dl.code === d)?.name ??
-                    "Unknown diagnosis code"}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {patient.entries.map((e) => (
+          <EntryDetails key={`entry_${e.id}`} entry={e} diagnoses={diagnoses} />
         ))}
       </Box>
     </div>
