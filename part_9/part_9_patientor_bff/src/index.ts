@@ -23,7 +23,7 @@ app.use(corsMiddleware);
 app.use(express.json());
 
 app.use("/api/patients", patientRouter);
-app.use("/api/diaries", diagnoseRouter);
+app.use("/api/diagnoses", diagnoseRouter);
 
 app.get("/api/ping", (_req, res) => {
   console.log("someone pinged here");
