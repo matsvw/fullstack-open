@@ -9,7 +9,14 @@ import {
   SelectChangeEvent,
   Box,
   Alert,
+  Rating,
 } from "@mui/material";
+
+import { styled } from "@mui/material/styles";
+
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+
 import axios from "axios";
 import {
   Entry,
@@ -18,14 +25,27 @@ import {
   Discharge,
   SickLeave,
   EntryType,
+  Diagnosis,
 } from "../../types";
+
 import patientService from "../../services/patients";
 import { assertNever, getAxiosErrorMessages } from "../../utils";
+import DiagnosesSelector from "../EntryDetails/DiagnosesSelector";
+
+const StyledRating = styled(Rating)({
+  "& .MuiRating-iconFilled": {
+    color: "#ff6d75",
+  },
+  "& .MuiRating-iconHover": {
+    color: "#ff3d47",
+  },
+});
 
 interface Props {
   onCancel: () => void;
   onNewEntry: (newEntry: Entry) => void;
   patientId: string;
+  diagnoses: Diagnosis[];
 }
 
 interface EntryOption {
@@ -38,7 +58,12 @@ const entryOptions: EntryOption[] = Object.values(EntryType).map((v) => ({
   label: v.toString(),
 }));
 
-const AddEntryForm = ({ onCancel, onNewEntry, patientId }: Props) => {
+const AddEntryForm = ({
+  onCancel,
+  onNewEntry,
+  patientId,
+  diagnoses,
+}: Props) => {
   const emptySickLeave: SickLeave = { startDate: "", endDate: "" };
   const emptyDischarge: Discharge = { date: "", criteria: "" };
   const [error, setError] = useState("");
@@ -174,7 +199,8 @@ const AddEntryForm = ({ onCancel, onNewEntry, patientId }: Props) => {
         <TextField
           sx={{ mt: "0.8rem" }}
           label="Date"
-          placeholder="YYYY-MM-DD"
+          type="date"
+          focused
           fullWidth
           value={entryDate}
           onChange={({ target }) => setEntryDate(target.value)}
@@ -186,23 +212,26 @@ const AddEntryForm = ({ onCancel, onNewEntry, patientId }: Props) => {
           value={specialist}
           onChange={({ target }) => setSpecialist(target.value)}
         />
-        <TextField
+        <DiagnosesSelector
+          diagnosisList={diagnoses}
+          onChange={(val) => setDiagnosisCodes(val)}
           sx={{ mt: "0.8rem" }}
-          label="Diagnosiscodes"
-          fullWidth
-          value={diagnosisCodes}
-          onChange={({ target }) => setDiagnosisCodes(target.value.split(","))}
         />
 
         {entryType === EntryType.HealthCheck && (
-          <TextField
+          <StyledRating
             sx={{ mt: "0.8rem" }}
-            label="Healthcheck rating"
-            fullWidth
-            value={healthCheckRating}
-            onChange={({ target }) =>
-              setHealthCheckRating(Number(target.value))
+            value={4 - healthCheckRating}
+            getLabelText={(value: number) =>
+              `${value} Heart${value !== 1 ? "s" : ""}`
             }
+            precision={1}
+            max={4}
+            onChange={(_event, newValue) => {
+              setHealthCheckRating(4 - (newValue ?? 4));
+            }}
+            icon={<FavoriteIcon fontSize="inherit" />}
+            emptyIcon={<FavoriteBorderIcon fontSize="inherit" />}
           />
         )}
 
@@ -219,7 +248,8 @@ const AddEntryForm = ({ onCancel, onNewEntry, patientId }: Props) => {
             <TextField
               sx={{ mt: "0.8rem" }}
               label="Skickleave start date"
-              placeholder="YYYY-MM-DD"
+              type="date"
+              focused
               fullWidth
               value={sickLeave?.startDate}
               onChange={({ target }) =>
@@ -232,7 +262,8 @@ const AddEntryForm = ({ onCancel, onNewEntry, patientId }: Props) => {
             <TextField
               sx={{ mt: "0.8rem" }}
               label="Skickleave end date"
-              placeholder="YYYY-MM-DD"
+              type="date"
+              focused
               fullWidth
               value={sickLeave?.endDate}
               onChange={({ target }) =>
@@ -249,7 +280,8 @@ const AddEntryForm = ({ onCancel, onNewEntry, patientId }: Props) => {
             <TextField
               sx={{ mt: "0.8rem" }}
               label="Discharge date"
-              placeholder="YYYY-MM-DD"
+              type="date"
+              focused
               fullWidth
               value={discharge?.date}
               onChange={({ target }) =>
