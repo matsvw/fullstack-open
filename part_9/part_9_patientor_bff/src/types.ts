@@ -45,11 +45,11 @@ export interface BaseEntry {
 
 export const BaseEntrySchema = z.object({
   id: z.string(),
-  description: z.string(),
+  description: z.string().min(3),
   date: z
     .string()
     .refine((s) => !Number.isNaN(Date.parse(s)), "Invalid entry date format"),
-  specialist: z.string(),
+  specialist: z.string().min(3),
   diagnosisCodes: z.array(z.string()).optional(),
 });
 
@@ -91,7 +91,7 @@ export const SickLeaveSchema = z
 
 export const OccupationalHealthcareEntrySchema = BaseEntrySchema.extend({
   type: z.literal(EntryType.OccupationalHealthcare),
-  employerName: z.string().min(1),
+  employerName: z.string().min(3),
   sickLeave: SickLeaveSchema.optional(),
 });
 
@@ -107,7 +107,7 @@ export const DischargeSchema = z.object({
       (s) => !Number.isNaN(Date.parse(s)),
       "Invalid discharge date format",
     ),
-  criteria: z.string(),
+  criteria: z.string().min(3),
 });
 
 const HospitalEntrySchema = BaseEntrySchema.extend({
@@ -158,13 +158,13 @@ export interface Patient {
 }
 
 export const NewPatientSchema = z.object({
-  name: z.string(),
+  name: z.string().min(3),
   dateOfBirth: z
     .string()
     .refine((s) => !Number.isNaN(Date.parse(s)), "Invalid dob format"),
-  ssn: z.string(),
+  ssn: z.string().min(10),
   gender: z.enum(Gender),
-  occupation: z.string(),
+  occupation: z.string().min(3),
   entries: z.array(EntrySchema).default([]),
 });
 

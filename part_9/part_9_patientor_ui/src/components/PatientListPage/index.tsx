@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 
 import { PatientFormValues, Patient, EntryType } from "../../types";
+import { getAxiosErrorMessages } from "../../utils";
 import AddPatientModal from "../AddPatientModal";
 
 import HealthRatingBar from "../HealthRatingBar";
@@ -41,17 +42,11 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
       setPatients(patients.concat(patient));
       setModalOpen(false);
     } catch (e: unknown) {
+      console.log(e);
       if (axios.isAxiosError(e)) {
-        if (e?.response?.data && typeof e?.response?.data === "string") {
-          const message = e.response.data.replace(
-            "Something went wrong. Error: ",
-            "",
-          );
-          console.error(message);
-          setError(message);
-        } else {
-          setError("Unrecognized axios error");
-        }
+        const messages = getAxiosErrorMessages(e);
+        const message = `Error adding patient:\n${messages.join("\n")}`;
+        setError(message);
       } else {
         console.error("Unknown error", e);
         setError("Unknown error");

@@ -5,10 +5,11 @@ import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
 import TransgenderIcon from "@mui/icons-material/Transgender";
 
-import { Patient, Gender, Diagnosis } from "../../types";
+import { Patient, Gender, Diagnosis, Entry } from "../../types";
 import patientService from "../../services/patients";
 
 import EntryDetails from "../EntryDetails";
+import AddEntryForm from "./AddEntryForm";
 
 interface Props {
   diagnoses: Diagnosis[];
@@ -16,6 +17,7 @@ interface Props {
 
 const PatientDetailsPage = ({ diagnoses }: Props) => {
   const [patient, setPatient] = useState<Patient>();
+  const [addEntry, setAddEntry] = useState(false);
   const { id: patientId } = useParams();
 
   useEffect(() => {
@@ -33,8 +35,26 @@ const PatientDetailsPage = ({ diagnoses }: Props) => {
     return <p>Loading...</p>;
   }
 
+  const entryAdded = (entry: Entry) => {
+    const newPatient = { ...patient, entries: patient.entries.concat(entry) };
+    setPatient(newPatient);
+    setAddEntry(false);
+  };
+
+  const showEntryForm = () => {
+    window.scrollTo(0, 0); //ugy, but works for this purpose
+    setAddEntry(true);
+  };
+
   return (
     <div className="App">
+      {addEntry && patientId && (
+        <AddEntryForm
+          patientId={patientId}
+          onCancel={() => setAddEntry(false)}
+          onNewEntry={entryAdded}
+        />
+      )}
       <Box sx={{ mt: "2rem" }}>
         <Typography variant="h6">
           {patient.name}
@@ -60,7 +80,9 @@ const PatientDetailsPage = ({ diagnoses }: Props) => {
           <EntryDetails key={`entry_${e.id}`} entry={e} diagnoses={diagnoses} />
         ))}
         <br />
-        <Button variant="contained">Add new entry</Button>
+        <Button variant="contained" onClick={showEntryForm}>
+          Add new entry
+        </Button>
       </Box>
     </div>
   );
