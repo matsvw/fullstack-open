@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { Link } from "react-router-native";
 import Constants from 'expo-constants';
 import theme from '../theme';
 
@@ -9,13 +10,14 @@ export default function AppBar({ actions = [], children }) {
     <View style={styles.screen}>
       <StatusBar barStyle="light-content" />
       <View style={styles.header}>
-        {/* Left-aligned text buttons */}
         <View style={styles.navRow}>
-          {actions.map(({ label, onPress }, idx) => (
-            <TouchableOpacity key={idx} onPress={onPress} style={styles.navButton}>
-              <Text style={styles.navText}>{label}</Text>
-            </TouchableOpacity>
-          ))}
+          <ScrollView horizontal showsHorizontalScrollIndicator fadingEdgeLength={{ start: 0, end: 10 }}>
+            {actions.map(({ label, linkTo }, idx) => (
+              <Link key={idx} to={linkTo} style={styles.navButton}>
+                <Text style={styles.navText}>{label}</Text>
+              </Link>
+            ))}
+          </ScrollView>
         </View>
       </View>
 
@@ -42,8 +44,9 @@ const styles = StyleSheet.create({
   navButton: {
     paddingVertical: 8,
     paddingHorizontal: 10,
+    marginRight: 10,
     borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: theme.colors.opaque,
   },
   navText: {
     color: theme.colors.background,

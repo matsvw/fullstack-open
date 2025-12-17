@@ -1,5 +1,7 @@
+import { Route, Routes, Navigate, Text } from 'react-router-native';
 import AppBar from './AppBar';
 import RepositoryList from './RepositoryList';
+import SignIn from './SignIn';
 
 const Main = () => {
 
@@ -10,16 +12,24 @@ const Main = () => {
   // Must declare this after the onPress methods!
   const actions = [
     {
-      onPress: toRepositoryList,
+      linkTo: '/repositories',
       label: "Repository"
-    }
+    },
+    {
+      linkTo: '/signin',
+      label: "Sign In"
+    },
   ]
 
   console.log("Main rendering");
 
   return (
-    <AppBar actions={actions} title="Repo Rating">
-      <RepositoryList />
+    <AppBar actions={actions}>
+      <Routes>
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/repositories" element={<RepositoryList />} />
+        <Route path="*" element={<Navigate to="/signin" replace />} />
+      </Routes>
     </AppBar>
   );
 };

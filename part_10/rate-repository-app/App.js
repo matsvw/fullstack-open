@@ -1,4 +1,5 @@
 import Main from './src/components/Main';
+import { NativeRouter } from 'react-router-native';
 
 /*
 if (__DEV__) {
@@ -11,7 +12,12 @@ if (__DEV__) {
 */
 
 const App = () => {
-  return <Main />;
+  console.log("App rendering");
+  return (
+    <NativeRouter>
+      <Main />
+    </NativeRouter>
+  )
 };
 
 export default App;

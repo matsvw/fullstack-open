@@ -3,7 +3,9 @@ const theme = {
     textPrimary: '#24292e',
     textSecondary: '#586069',
     primary: '#0366d6',
-    background: '#fff'
+    background: '#fff',
+    greyBackground: '#e1e4e8',
+    opaque: 'rgba(255,255,255,0.12)'
   },
   fontSizes: {
     body: 14,
