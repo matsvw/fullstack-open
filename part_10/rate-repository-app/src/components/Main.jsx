@@ -1,21 +1,26 @@
-import Constants from 'expo-constants';
-import { Text, StyleSheet, View } from 'react-native';
+import AppBar from './AppBar';
 import RepositoryList from './RepositoryList';
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: Constants.statusBarHeight,
-    flexGrow: 1,
-    flexShrink: 1,
-  },
-});
-
 const Main = () => {
-  console.log("App started")
+
+  const toRepositoryList = () => {
+    console.log("Nav to toRepositoryList")
+  };
+
+  // Must declare this after the onPress methods!
+  const actions = [
+    {
+      onPress: toRepositoryList,
+      label: "Repository"
+    }
+  ]
+
+  console.log("Main rendering");
+
   return (
-    <View style={styles.container}>
+    <AppBar actions={actions} title="Repo Rating">
       <RepositoryList />
-    </View>
+    </AppBar>
   );
 };
 

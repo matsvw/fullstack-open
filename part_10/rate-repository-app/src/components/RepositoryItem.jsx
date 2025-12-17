@@ -1,30 +1,27 @@
-import { View, Text, StyleSheet } from 'react-native';
-
+import { View, StyleSheet } from 'react-native';
+import Text from './Text';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#f0f0f0',
-  },
-  text: {
-    fontSize: 18,
-    color: '#333',
-  },
+    flexDirection: 'column',
+    paddingLeft: 16,
+    paddingRight: 16
+  }
 });
 
 
 const RepositoryItem = ({ item }) => {
   return (
     <View style={styles.container}>
-      <Text styles={styles.text}>ID: {item.id}</Text>
-      <Text styles={styles.text}>Full name: {item.fullName}</Text>
-      <Text styles={styles.text}>Deescription: {item.description}</Text>
-      <Text styles={styles.text}>Language: {item.language}</Text>
-      <Text styles={styles.text}>Stars: {item.forksCount}</Text>
-      <Text styles={styles.text}>Forks: {item.stargazersCount}</Text>
-      <Text styles={styles.text}>Rating: {item.ratingAverage}</Text>
-      <Text styles={styles.text}>Reviews: {item.reviewCount}</Text>
-      <Text styles={styles.text}>Avatar url: {item.ownerAvatarUrl}</Text>
+      <Text>ID: {item.id}</Text>
+      <Text>Full name: {item.fullName}</Text>
+      <Text>Description: {item.description}</Text>
+      <Text>Language: {item.language}</Text>
+      <Text>Stars: {item.forksCount}</Text>
+      <Text>Forks: {item.stargazersCount}</Text>
+      <Text>Rating: {item.ratingAverage}</Text>
+      <Text>Reviews: {item.reviewCount}</Text>
+      <Text>Avatar url: {item.ownerAvatarUrl}</Text>
     </View>
   )
 }
