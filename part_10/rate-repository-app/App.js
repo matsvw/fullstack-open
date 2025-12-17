@@ -1,20 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import Main from './src/components/Main';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Hello android!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+/*
+if (__DEV__) {
+  // For RN to connect to the standalone DevTools on a custom port
+  require('react-devtools-core').connectToDevTools({
+    host: 'localhost', // or your machine IP if using a device
+    port: 8098,
+  });
 }
+*/
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const App = () => {
+  return <Main />;
+};
+
+export default App;
