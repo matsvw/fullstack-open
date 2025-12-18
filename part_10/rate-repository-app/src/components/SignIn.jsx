@@ -74,6 +74,7 @@ const SignIn = () => {
 };
 
 const INPUT = {
+  fontFamily: theme.fonts.main,
   borderRadius: theme.boxes.radius,
   borderWidth: 1,
   marginBottom: 10,
@@ -98,6 +99,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
+    fontFamily: theme.fonts.main,
     borderRadius: theme.boxes.radius,
   }
 });
