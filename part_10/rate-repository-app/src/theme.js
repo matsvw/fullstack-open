@@ -5,6 +5,7 @@ const theme = {
     primary: '#0366d6',
     background: '#fff',
     greyBackground: '#e1e4e8',
+    error: '#d73a4a',
     opaque: 'rgba(255,255,255,0.12)'
   },
   boxes: {
