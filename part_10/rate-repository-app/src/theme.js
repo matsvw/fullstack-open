@@ -7,6 +7,9 @@ const theme = {
     greyBackground: '#e1e4e8',
     opaque: 'rgba(255,255,255,0.12)'
   },
+  boxes: {
+    radius: 4
+  },
   fontSizes: {
     body: 14,
     subheading: 16,

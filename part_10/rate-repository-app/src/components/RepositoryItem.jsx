@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     resizeMode: 'contain',
-    borderRadius: 4
+    borderRadius: theme.boxes.radius
   },
   boldText: {
     fontWeight: theme.fontWeights.bold,
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginTop: 10,
     marginBottom: 5,
-    borderRadius: 6,
+    borderRadius: theme.boxes.radius,
     color: theme.colors.background,
     backgroundColor: theme.colors.primary,
   },
