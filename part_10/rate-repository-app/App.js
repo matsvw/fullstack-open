@@ -1,5 +1,7 @@
 import Main from './src/components/Main';
 import { NativeRouter } from 'react-router-native';
+import { useFonts } from 'expo-font';
+import Text from './src/components/Text';
 
 /*
 if (__DEV__) {
@@ -13,6 +15,16 @@ if (__DEV__) {
 
 const App = () => {
   console.log("App rendering");
+
+  const [fontsLoaded] = useFonts({
+    Arial: require('./assets/fonts/Arial.ttf'),
+    Roboto: require('./assets/fonts/Roboto.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return <Text>Loading fonts…</Text>; // Fallback content
+  }
+
   return (
     <NativeRouter>
       <Main />
