@@ -1,5 +1,7 @@
-import Main from './src/components/Main';
 import { NativeRouter } from 'react-router-native';
+import { ApolloProvider } from '@apollo/client/react';
+import Main from './src/components/Main';
+import createApolloClient from './src/utils/apolloClient';
 
 /*
 if (__DEV__) {
@@ -11,14 +13,18 @@ if (__DEV__) {
 }
 */
 
-const App = () => {
-  console.log("App rendering");
+const apolloClient = createApolloClient();
 
+const App = () => {
   return (
     <NativeRouter>
-      <Main />
+
+      <ApolloProvider client={apolloClient}>
+        <Main />
+
+      </ApolloProvider>
     </NativeRouter>
-  )
+  );
 };
 
 export default App;

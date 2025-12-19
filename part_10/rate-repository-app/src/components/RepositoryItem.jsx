@@ -22,6 +22,7 @@ const CenteredDetailView = ({ label, value }) => {
 }
 
 const RepositoryItem = ({ item }) => {
+  //console.log("Reposiory item: ", item);
   return (
 
     <View style={styles.container}>
