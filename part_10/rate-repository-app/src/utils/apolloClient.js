@@ -1,6 +1,9 @@
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+import { SetContextLink } from '@apollo/client/link/context';
 import Constants from 'expo-constants';
+
+import AuthStorage from './authStorage';
 
 if (__DEV__) {
   // Adds messages only in a dev environment
@@ -20,6 +23,8 @@ const createApolloClient = () => {
   const uri = `${APOLLO_URL}/graphql`;
   console.log("Apollo uri:", uri);
 
+  const authStorage = new AuthStorage();
+
   const httpLink = new HttpLink({
     uri: uri,
     // headers: { authorization: `Bearer ${token}` },
@@ -27,8 +32,26 @@ const createApolloClient = () => {
     // fetch, // supply a custom fetch if you need one
   });
 
+  const authLink = new SetContextLink(async ({ headers }, operation) => {
+    try {
+      console.log(operation);
+      const accessToken = await authStorage.getAccessToken();
+      return {
+        headers: {
+          ...headers,
+          authorization: accessToken ? `Bearer ${accessToken}` : '',
+        },
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        headers,
+      };
+    }
+  });
+
   return new ApolloClient({
-    link: httpLink,
+    link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
     name: "rate-repository-app",
     queryDeduplication: false,

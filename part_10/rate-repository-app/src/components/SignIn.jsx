@@ -36,9 +36,6 @@ const SignIn = () => {
         console.log("Credentials: ", credentials.username, credentials.password);
 
         const data = await signIn({ username: credentials.username, password: credentials.password });
-        const token = data.authenticate.accessToken;
-        console.log(token);
-        authStorage.setAccessToken(token);
         helpers.resetForm();
         nav("/repositories");
       }

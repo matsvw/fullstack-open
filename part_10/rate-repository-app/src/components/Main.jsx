@@ -1,25 +1,36 @@
 import { Route, Routes, Navigate } from 'react-router-native';
+import { useQuery } from '@apollo/client/react';
+
 import AppBar from './AppBar';
 import RepositoryList from './RepositoryList';
 import SignIn from './SignIn';
+import SignOut from './SignOut';
+
+import { GET_ME } from '../graphql/queries';
 
 const Main = () => {
+  const { data, error, loading } = useQuery(GET_ME, { fetchPolicy: 'no-cache', });
 
-  const toRepositoryList = () => {
-    console.log("Nav to toRepositoryList")
-  };
-
-  // Must declare this after the onPress methods!
   const actions = [
     {
       linkTo: '/repositories',
       label: "Repository"
     },
-    {
+  ]
+
+  console.log("user data: ", data)
+
+  if (!loading && !error && data?.me?.username) {
+    actions.push({
+      linkTo: '/signout',
+      label: "Sign Out"
+    },)
+  } else {
+    actions.push({
       linkTo: '/signin',
       label: "Sign In"
-    },
-  ]
+    },)
+  }
 
   console.log("Main rendering");
 
@@ -27,6 +38,7 @@ const Main = () => {
     <AppBar actions={actions}>
       <Routes>
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/signout" element={<SignOut />} />
         <Route path="/repositories" element={<RepositoryList />} />
         <Route path="*" element={<Navigate to="/signin" replace />} />
       </Routes>
@@ -35,3 +47,12 @@ const Main = () => {
 };
 
 export default Main;
+
+
+
+const useRepositories = () => {
+
+
+  return { repositories: data?.repositories, loading, error };
+};
+
