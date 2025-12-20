@@ -1,8 +1,12 @@
 import { View, StyleSheet, TextInput, Button } from 'react-native';
+import { useNavigate } from 'react-router-native';
 import Text from './Text';
 import theme from '../theme'
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+
+import useSignIn from '../hooks/useSignIn';
+import AuthStorage from '../utils/authStorage';
 
 const initialCredentials = {
   username: '',
@@ -20,17 +24,32 @@ const validationSchema = yup.object().shape({
     .required('Password is mandatory'),
 });
 
-
-const onSignIn = (credentials, helpers) => {
-  console.log("Credentials: ", credentials.username, credentials.password);
-  if (!helpers.errors) {
-    helpers.resetForm();
-  }
-}
-
-
 const SignIn = () => {
   //console.log("SignIn rendering");
+  const [signIn] = useSignIn()
+  const authStorage = new AuthStorage();
+  const nav = useNavigate()
+
+  const onSignIn = async (credentials, helpers) => {
+    try {
+      if (!helpers.errors) {
+        console.log("Credentials: ", credentials.username, credentials.password);
+
+        const data = await signIn({ username: credentials.username, password: credentials.password });
+        const token = data.authenticate.accessToken;
+        console.log(token);
+        authStorage.setAccessToken(token);
+        helpers.resetForm();
+        nav("/repositories");
+      }
+    }
+    catch (error) {
+      //console.log(error.graphQLErrors)
+      alert(error.message);
+      console.log(error.message);
+    }
+
+  }
 
   const credentials = useFormik({
     initialValues: initialCredentials,
@@ -38,7 +57,7 @@ const SignIn = () => {
     onSubmit: onSignIn,
   });
 
-  const unError = () => {
+  const usernameError = () => {
     return (credentials.touched.username && credentials.errors.username)
   }
   const pwdError = () => {
@@ -48,13 +67,13 @@ const SignIn = () => {
   return (
     <View style={styles.container}>
       <TextInput
-        style={unError() ? styles.inputError : styles.input}
+        style={usernameError() ? styles.inputError : styles.input}
         placeholder='Username'
         value={credentials.values.username}
         onBlur={credentials.handleBlur('username')}
         onChangeText={credentials.handleChange('username')}
       />
-      {unError() && (
+      {usernameError() && (
         <Text style={styles.errorMessage}>{credentials.errors.username}</Text>
       )}
       <TextInput
@@ -68,7 +87,7 @@ const SignIn = () => {
       {pwdError() && (
         <Text style={styles.errorMessage}>{credentials.errors.password}</Text>
       )}
-      <Button style={styles.button} title="Sign In" onPress={credentials.handleSubmit} />
+      <Button disabled={usernameError() || pwdError()} style={styles.button} title="Sign In" onPress={credentials.handleSubmit} />
     </View>
   );
 };
