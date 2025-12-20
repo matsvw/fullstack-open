@@ -1,5 +1,6 @@
 import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+import Constants from 'expo-constants';
 
 if (__DEV__) {
   // Adds messages only in a dev environment
@@ -7,7 +8,8 @@ if (__DEV__) {
   loadErrorMessages();
 }
 
-const APOLLO_URL = process.env.EXPO_PUBLIC_APOLLO_URL;
+//const APOLLO_URL = process.env.EXPO_PUBLIC_APOLLO_URL; // This also works, but using Constants as instructed.
+const APOLLO_URL = Constants.expoConfig.extra.APOLLO_URL;
 
 const createApolloClient = () => {
 

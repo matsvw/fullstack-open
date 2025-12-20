@@ -7,4 +7,4 @@ const useRepositories = () => {
   return { repositories: data?.repositories, loading, error };
 };
 
-export default useRepositories;
+export default useRepositories;  
