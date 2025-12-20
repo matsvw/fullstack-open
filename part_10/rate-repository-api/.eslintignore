@@ -1,0 +1,10 @@
+# Ignore config / tooling
+babel.config.* 
+*.config.* 
+jest.config.* 
+webpack.* 
+vite.config.* 
+rollup.config.* 
+tsconfig.* 
+node_modules/
+dist/
