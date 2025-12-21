@@ -1,6 +1,6 @@
 import { gql, UserInputError } from 'apollo-server';
 import * as yup from 'yup';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 import User from '../../models/User.js';
 
