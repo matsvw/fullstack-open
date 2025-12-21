@@ -1,17 +1,9 @@
 import { View, StyleSheet, Image } from 'react-native';
 import theme from '../theme'
-import Text from './Text';
+import Text from './Text'
+import {shortenNumber} from '../utils/formatter'
 
 const CenteredDetailView = ({ label, value }) => {
-
-  const shortenNumber = (value) => {
-    if (typeof value === 'number') {
-      if (value >= 1000) {
-        return `${(value / 1000).toFixed(1)}k`
-      }
-    }
-    return value;
-  }
 
   return (
     <View style={styles.colCenter}>
@@ -25,7 +17,7 @@ const RepositoryItem = ({ item }) => {
   //console.log("Reposiory item: ", item);
   return (
 
-    <View style={styles.container}>
+    <View testID="repositoryItem" style={styles.container}>
 
       <View style={styles.row}>
         <View style={styles.colImage}>

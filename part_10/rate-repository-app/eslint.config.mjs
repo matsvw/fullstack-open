@@ -21,7 +21,7 @@ const compat = new FlatCompat({
 
 export default defineConfig([
     // Bring in the legacy shareable configs first
-    ...compat.extends("eslint:recommended", "plugin:react/recommended"),
+    ...compat.extends("eslint:recommended", "plugin:react/recommended", "plugin:jest/recommended"),
 
     // Then add our flat config
     {
@@ -65,3 +65,6 @@ export default defineConfig([
         },
     },
 ]);
+
+
+  
