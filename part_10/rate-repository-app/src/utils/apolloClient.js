@@ -1,9 +1,9 @@
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
-import { SetContextLink } from '@apollo/client/link/context';
-import Constants from 'expo-constants';
+import { SetContextLink } from "@apollo/client/link/context";
+import Constants from "expo-constants";
 
-import AuthStorage from './authStorage';
+import AuthStorage from "./authStorage";
 
 if (__DEV__) {
   // Adds messages only in a dev environment
@@ -13,11 +13,11 @@ if (__DEV__) {
 
 //const APOLLO_URL = process.env.EXPO_PUBLIC_APOLLO_URL; // This also works, but using Constants as instructed.
 const APOLLO_URL = Constants.expoConfig.extra.APOLLO_URL;
+//const APOLLO_URL = "http://192.168.86.22:4000";
 
 const createApolloClient = () => {
-
   if (!APOLLO_URL) {
-    throw new Error('EXPO_PUBLIC_APOLLO_URL is not defined');
+    throw new Error("EXPO_PUBLIC_APOLLO_URL is not defined");
   }
 
   const uri = `${APOLLO_URL}/graphql`;
@@ -39,7 +39,7 @@ const createApolloClient = () => {
       return {
         headers: {
           ...headers,
-          authorization: accessToken ? `Bearer ${accessToken}` : '',
+          authorization: accessToken ? `Bearer ${accessToken}` : "",
         },
       };
     } catch (e) {

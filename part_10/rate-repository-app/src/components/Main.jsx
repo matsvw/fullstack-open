@@ -47,12 +47,3 @@ const Main = () => {
 };
 
 export default Main;
-
-
-
-const useRepositories = () => {
-
-
-  return { repositories: data?.repositories, loading, error };
-};
-
