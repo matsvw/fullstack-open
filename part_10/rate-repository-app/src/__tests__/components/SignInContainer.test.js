@@ -1,33 +1,41 @@
-import { render, fireEvent, screen } from "@testing-library/react-native";
-import SignInContainer from "../../components/SignIn";
+import {
+  render,
+  fireEvent,
+  screen,
+  act,
+  waitFor,
+  userEvent,
+} from "@testing-library/react-native";
+import SignInContainer from "../../components/SignInContainer";
 
 describe("SignIn", () => {
   describe("SignInContainer", () => {
-    it("signin fires correct event and submits correct values", () => {
-      async () => {
-        const onSignIn = jest.fn();
-        render(<SignInContainer onSignIn={onSignIn} />);
+    it("signin fires correct event and submits correct values", async () => {
+      const onSignIn = jest.fn();
+      const user = userEvent.setup();
+      render(<SignInContainer onSignIn={onSignIn} />);
 
-        fireEvent.changeText(screen.getByPlaceholderText("Username"), "kalle");
-        fireEvent.changeText(
-          screen.getByPlaceholderText("Password"),
-          "password2"
-        );
-        fireEvent.press(screen.getByText("Sign In"));
+      //Must use user event to fire the blur events
+      const unField = screen.getByPlaceholderText("Username");
+      await user.type(unField, "kalle");
 
-        await waitFor(() => {
-          expect(onSignIn).toHaveBeenCalledTimes(2);
+      const pwField = screen.getByPlaceholderText("Password");
+      await user.type(pwField, "password");
 
-          console.log("Received mock calls: ", onSignIn.mock.calls);
+      act(() => {
+        fireEvent.press(screen.getByTestId("signInButton"));
+      });
 
-          // onSubmit.mock.calls[0][0] contains the first argument of the first call
-          expect(onSignIn.mock.calls[0][0]).toEqual({
-            username: "kalle",
-            password: "password",
-          });
+      await waitFor(() => {
+        //console.log("Received mock calls: ", onSignIn.mock.calls);
+        expect(onSignIn).toHaveBeenCalledTimes(1);
+
+        // onSubmit.mock.calls[0][0] contains the first argument of the first call
+        expect(onSignIn.mock.calls[0][0]).toEqual({
+          username: "kalle",
+          password: "password",
         });
-        console.log("Received mock calls: ", onSignIn.mock.calls);
-      };
+      });
     });
   });
 });

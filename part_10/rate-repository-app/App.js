@@ -14,14 +14,6 @@ if (__DEV__) {
   });
 }
 */
-import Constants from "expo-constants";
-
-console.log(
-  "🔍 Full Constants.expoConfig:",
-  JSON.stringify(Constants.expoConfig, null, 2)
-);
-console.log("📦 Extra object:", Constants.expoConfig?.extra);
-console.log("🌐 Direct env var:", process.env.EXPO_PUBLIC_APOLLO_URL);
 
 const authStorage = new AuthStorage();
 const apolloClient = createApolloClient(authStorage);

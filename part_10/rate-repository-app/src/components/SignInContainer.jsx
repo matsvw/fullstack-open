@@ -58,7 +58,7 @@ const SignInContainer = ({onSignIn}) => {
       {pwdError() && (
         <Text style={styles.errorMessage}>{credentials.errors.password}</Text>
       )}
-      <Button disabled={usernameError() || pwdError()} style={styles.button} title="Sign In" onPress={credentials.handleSubmit} />
+      <Button testID="signInButton" disabled={usernameError() || pwdError()} style={styles.button} title="Sign In" onPress={credentials.handleSubmit} />
     </View>
   );
 };
