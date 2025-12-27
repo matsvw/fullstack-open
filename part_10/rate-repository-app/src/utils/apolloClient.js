@@ -11,7 +11,7 @@ if (__DEV__) {
   loadErrorMessages();
 }
 
-//const APOLLO_URL = process.env.EXPO_PUBLIC_APOLLO_URL; // This also works, but using Constants as instructed.
+//wwconst APOLLO_URL = process.env.EXPO_PUBLIC_APOLLO_URL; // This also works, but using Constants as instructed.
 const APOLLO_URL = Constants.expoConfig.extra.APOLLO_URL;
 //const APOLLO_URL = "http://192.168.86.22:4000";
 
