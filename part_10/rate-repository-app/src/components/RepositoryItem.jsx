@@ -1,24 +1,24 @@
-import { View, StyleSheet, Image } from 'react-native';
-import theme from '../theme'
-import Text from './Text'
-import {shortenNumber} from '../utils/formatter'
+import { View, StyleSheet, Image, Button } from "react-native";
+import { openURL } from "expo-linking";
+import theme from "../theme";
+import Text from "./Text";
+import { shortenNumber } from "../utils/formatter";
 
 const CenteredDetailView = ({ label, value }) => {
-
   return (
     <View style={styles.colCenter}>
       <Text style={styles.boldText}>{shortenNumber(value)}</Text>
       <Text>{label}</Text>
     </View>
-  )
-}
+  );
+};
 
-const RepositoryItem = ({ item }) => {
+const RepositoryItem = ({ item, fullView = false }) => {
+  //const linking = useLinkingURL();
+
   //console.log("Reposiory item: ", item);
   return (
-
     <View testID="repositoryItem" style={styles.container}>
-
       <View style={styles.row}>
         <View style={styles.colImage}>
           <Image source={{ uri: item.ownerAvatarUrl }} style={styles.logo} />
@@ -36,20 +36,32 @@ const RepositoryItem = ({ item }) => {
         <CenteredDetailView label="Reviews" value={item.reviewCount} />
         <CenteredDetailView label="Ratings" value={item.ratingAverage} />
       </View>
-
+      {fullView && (
+        <View>
+          <Button
+            style={styles.button}
+            title="Open in GitHub"
+            onPress={() => openURL(item.url)}
+          />
+        </View>
+      )}
     </View>
-  )
-}
+  );
+};
 
-export default RepositoryItem
-
+export default RepositoryItem;
 
 const styles = StyleSheet.create({
   logo: {
     width: 50,
     height: 50,
-    resizeMode: 'contain',
-    borderRadius: theme.boxes.radius
+    flexShrink: 1,
+    resizeMode: "contain",
+    borderRadius: theme.boxes.radius,
+  },
+  button: {
+    fontFamily: theme.fonts.main,
+    borderRadius: theme.boxes.radius,
   },
   boldText: {
     fontWeight: theme.fontWeights.bold,
@@ -61,27 +73,25 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginBottom: 10,
   },
   colMainDetails: {
     flex: 1,
-    stretch: 1,
     paddingLeft: 20,
     paddingBottom: 10,
-    justifyContent: 'top',
-    alignItems: 'flex-start',
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
   },
   colImage: {
-    flex: 0,
-    stretch: 1,
+    width: 60,
     paddingTop: 5,
-    justifyContent: 'top',
-    alignItems: 'center',
+    justifyContent: "flex-start",
+    alignItems: "center",
   },
   codeLanguage: {
     flex: 0,
-    stretch: 0,
     paddingVertical: 6,
     paddingHorizontal: 8,
     marginTop: 10,
@@ -92,7 +102,7 @@ const styles = StyleSheet.create({
   },
   colCenter: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

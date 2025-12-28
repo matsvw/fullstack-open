@@ -1,35 +1,38 @@
-import { Route, Routes, Navigate } from 'react-router-native';
-import { useQuery } from '@apollo/client/react';
+import { Route, Routes, Navigate } from "react-router-native";
+import { useQuery } from "@apollo/client/react";
 
-import AppBar from './AppBar';
-import RepositoryList from './RepositoryList';
-import SignIn from './SignIn';
-import SignOut from './SignOut';
+import AppBar from "./AppBar";
+import RepositoryList from "./RepositoryList";
+import RepositoryView from "./RepositoryView";
+import SignIn from "./SignIn";
+import SignOut from "./SignOut";
 
-import { GET_ME } from '../graphql/queries';
+import { GET_ME } from "../graphql/queries";
 
 const Main = () => {
-  const { data, error, loading } = useQuery(GET_ME, { fetchPolicy: 'no-cache', });
+  const { data, error, loading } = useQuery(GET_ME, {
+    fetchPolicy: "no-cache",
+  });
 
   const actions = [
     {
-      linkTo: '/repositories',
-      label: "Repository"
+      linkTo: "/repositories",
+      label: "Repository",
     },
-  ]
+  ];
 
-  console.log("user data: ", data)
+  console.log("user data: ", data);
 
   if (!loading && !error && data?.me?.username) {
     actions.push({
-      linkTo: '/signout',
-      label: "Sign Out"
-    },)
+      linkTo: "/signout",
+      label: "Sign Out",
+    });
   } else {
     actions.push({
-      linkTo: '/signin',
-      label: "Sign In"
-    },)
+      linkTo: "/signin",
+      label: "Sign In",
+    });
   }
 
   console.log("Main rendering");
@@ -40,6 +43,7 @@ const Main = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signout" element={<SignOut />} />
         <Route path="/repositories" element={<RepositoryList />} />
+        <Route path="/repositories/:id" element={<RepositoryView />} />
         <Route path="*" element={<Navigate to="/signin" replace />} />
       </Routes>
     </AppBar>
