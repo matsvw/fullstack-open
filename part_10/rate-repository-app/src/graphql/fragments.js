@@ -14,3 +14,22 @@ export const REPOSITORY_DETAILS = gql`
     url
   }
 `;
+
+export const REVIEW_DETAILS = gql`
+  fragment ReviewDetails on Repository {
+    reviews {
+      edges {
+        node {
+          id
+          text
+          rating
+          createdAt
+          user {
+            id
+            username
+          }
+        }
+      }
+    }
+  }
+`;

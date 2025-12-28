@@ -16,7 +16,7 @@ const RepositoryView = () => {
     return <Text>There was an error loading data</Text>;
   }
 
-  return <RepositoryItem item={repository} fullView={true} />;
+  return <RepositoryItem repository={repository} fullView={true} />;
 };
 
 export default RepositoryView;

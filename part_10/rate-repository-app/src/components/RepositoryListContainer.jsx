@@ -20,7 +20,7 @@ const RepositoryListContainer = ({ repositories }) => {
       ItemSeparatorComponent={ItemSeparator}
       renderItem={({ item, index, separators }) => (
         <Pressable onPress={() => navToRepo(item.id)}>
-          <RepositoryItem key={item.id} item={item} />
+          <RepositoryItem key={item.id} repository={item} />
         </Pressable>
       )}
     />
