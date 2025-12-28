@@ -1,3 +1,4 @@
+//import { LRUCache } from 'lru-cache';
 import LRUCache from 'lru-cache';
 import { ApolloError } from 'apollo-server';
 import lodash from 'lodash';
@@ -13,7 +14,7 @@ const oneHour = 1000 * 60 * 60;
 
 const HTTP_CLIENT_ERROR = Symbol();
 
-const isNotFoundError = error =>
+const isNotFoundError = (error) =>
   lodash.get(error[HTTP_CLIENT_ERROR], 'response.status') === 404;
 
 export class GithubError extends ApolloError {
@@ -23,7 +24,7 @@ export class GithubError extends ApolloError {
 
   static fromHttpClientError(error) {
     const githubError = new GithubError('GitHub API request failed', {
-      response: pick(error.response, [
+      response: lodash.pick(error.response, [
         'status',
         'statusText',
         'headers',
@@ -67,9 +68,9 @@ export class GithubClient {
   getAuth() {
     return this.clientId && this.clientSecret
       ? {
-        username: this.clientId,
-        password: this.clientSecret,
-      }
+          username: this.clientId,
+          password: this.clientSecret,
+        }
       : undefined;
   }
 

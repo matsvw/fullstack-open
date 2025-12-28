@@ -38,7 +38,7 @@
     "@koa/cors": "^5.0.0",
     "apollo-server": "^3.3.0",
     "apollo-server-core": "^3.3.0",
-    "apollo-server-koa": "^1.4.0",
+    "apollo-server-koa": "^3.13.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.5.0",

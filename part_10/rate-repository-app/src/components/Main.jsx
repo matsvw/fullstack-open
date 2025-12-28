@@ -4,6 +4,7 @@ import { useQuery } from "@apollo/client/react";
 import AppBar from "./AppBar";
 import RepositoryList from "./RepositoryList";
 import RepositoryView from "./RepositoryView";
+import ReviewForm from "./ReviewForm";
 import SignIn from "./SignIn";
 import SignOut from "./SignOut";
 
@@ -18,6 +19,10 @@ const Main = () => {
     {
       linkTo: "/repositories",
       label: "Repository",
+    },
+    {
+      linkTo: "/review",
+      label: "Create a review",
     },
   ];
 
@@ -44,6 +49,7 @@ const Main = () => {
         <Route path="/signout" element={<SignOut />} />
         <Route path="/repositories" element={<RepositoryList />} />
         <Route path="/repositories/:id" element={<RepositoryView />} />
+        <Route path="/review" element={<ReviewForm />} />
         <Route path="*" element={<Navigate to="/signin" replace />} />
       </Routes>
     </AppBar>
