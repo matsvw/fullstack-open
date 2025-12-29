@@ -84,7 +84,7 @@ const RepositoryItem = ({ repository, fullView = false }) => {
     ? repository.reviews.edges.map((edge) => edge.node)
     : [];
 
-  console.log(reviewNodes);
+  //console.log(reviewNodes);
 
   return (
     <FlatList
