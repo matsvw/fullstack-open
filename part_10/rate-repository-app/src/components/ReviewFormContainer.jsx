@@ -59,7 +59,6 @@ const ReviewFormContainer = ({ onSubmit }) => {
       <Button
         testID="reviewButton"
         disabled={!!Object.keys(review.errors).length}
-        style={styles.button}
         title="Create a Review"
         onPress={review.handleSubmit}
       />
@@ -72,10 +71,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: theme.colors.background,
-  },
-  button: {
-    fontFamily: theme.fonts.main,
-    borderRadius: theme.boxes.radius,
   },
 });
 

@@ -44,7 +44,6 @@ const SignInContainer = ({ onSignIn }) => {
       <Button
         testID="signInButton"
         disabled={!!Object.keys(credentials.errors).length}
-        style={styles.button}
         title="Sign In"
         onPress={credentials.handleSubmit}
       />
@@ -57,10 +56,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: theme.colors.background,
-  },
-  button: {
-    fontFamily: theme.fonts.main,
-    borderRadius: theme.boxes.radius,
   },
 });
 

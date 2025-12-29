@@ -1,4 +1,5 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Button } from "react-native";
+import { useNavigate } from "react-router-native";
 import theme from "../theme";
 import Text from "./Text";
 
@@ -8,9 +9,20 @@ const CircleNumber = ({ value }) => (
   </View>
 );
 
-const ReviewItem = ({ review }) => {
+const ReviewItem = ({ review, showButtons = false }) => {
+  const nav = useNavigate();
+
   const formatDate = (isoString) => {
     return new Intl.DateTimeFormat("fi-FI").format(new Date(isoString));
+  };
+
+  const openRepo = () => {
+    console.log("Open repo: ", review.repositoryId);
+    nav(`/repositories/${review.repositoryId}`);
+  };
+
+  const deleteReview = () => {
+    console.log("Delete review");
   };
 
   return (
@@ -25,6 +37,21 @@ const ReviewItem = ({ review }) => {
           <Text>{review.text}</Text>
         </View>
       </View>
+      {showButtons && (
+        <View style={styles.row}>
+          <View style={styles.buttonWrapper}>
+            <Button title="View repository" onPress={openRepo} />
+          </View>
+
+          <View style={styles.buttonWrapper}>
+            <Button
+              color={theme.colors.error}
+              title="Delete review"
+              onPress={deleteReview}
+            />
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -48,6 +75,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     marginBottom: 10,
+  },
+  buttonWrapper: {
+    flex: 1,
+    paddingHorizontal: 10,
   },
   colMainDetails: {
     flex: 1,

@@ -8,7 +8,7 @@ const ReviewListContainer = ({ reviews }) => {
   return (
     <FlatList
       data={reviews}
-      renderItem={({ item }) => <ReviewItem review={item} />}
+      renderItem={({ item }) => <ReviewItem review={item} showButtons={true} />}
       ItemSeparatorComponent={() => <ItemSeparator />}
       keyExtractor={({ id }) => id}
     />

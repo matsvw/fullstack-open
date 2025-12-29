@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { View, FlatList, StyleSheet, Pressable } from "react-native";
 import { useDebouncedCallback } from "use-debounce";
 import { useNavigate } from "react-router-native";
