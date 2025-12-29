@@ -5,8 +5,11 @@ import Text from "./Text";
 
 const RepositoryList = () => {
   const [selectedOrder, setSelectedOrder] = useState("CD");
-  const { repositories, loading, error } = useRepositories(selectedOrder);
-  console.log("Selected order: ", selectedOrder);
+  const [searchText, setSearchText] = useState("");
+  const { repositories, loading, error } = useRepositories(
+    selectedOrder,
+    searchText
+  );
 
   if (loading) {
     return <Text>Loading data...</Text>;
@@ -21,7 +24,10 @@ const RepositoryList = () => {
     <RepositoryListContainer
       selectedOrder={selectedOrder}
       setSelectedOrder={setSelectedOrder}
+      searchText={searchText}
+      setSearchText={setSearchText}
       repositories={repositories}
+      loading={loading}
     />
   );
 };

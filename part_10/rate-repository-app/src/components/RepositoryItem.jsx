@@ -32,7 +32,9 @@ const RepositoryInfo = ({ repository, fullView }) => {
         <View style={styles.colMainDetails}>
           <Text style={styles.boldText}>{repository.fullName}</Text>
           <Text>{repository.description}</Text>
-          <Text style={styles.codeLanguage}>{repository.language}</Text>
+          <Text style={styles.codeLanguage}>
+            {repository.language ?? "Unknown"}
+          </Text>
         </View>
       </View>
 
