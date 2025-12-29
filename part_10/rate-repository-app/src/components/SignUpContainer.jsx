@@ -8,24 +8,31 @@ import FormInput from "./FormInput";
 const initialCredentials = {
   username: "",
   password: "",
+  passwordConfirmation: "",
 };
 
 const validationSchema = yup.object().shape({
   username: yup
     .string()
-    .min(4, "Username must be at least 4 characters long")
+    .min(5, "Username must be at least 5 characters long")
+    .max(30, "Username cannot be over 30 characters long")
     .required("Username is mandatory"),
   password: yup
     .string()
     .min(5, "Password must be at least 5 characters long")
+    .max(50, "Password cannot be over 50 characters long")
     .required("Password is mandatory"),
+  passwordConfirmation: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Passwords do not match")
+    .required("Password confirmation is required"),
 });
 
-const SignInContainer = ({ onSignIn }) => {
+const SignUpContainer = ({ onSignUp }) => {
   const credentials = useFormik({
     initialValues: initialCredentials,
     validationSchema,
-    onSubmit: onSignIn,
+    onSubmit: onSignUp,
   });
 
   return (
@@ -41,11 +48,17 @@ const SignInContainer = ({ onSignIn }) => {
         placeHolder="Password"
         secureTextEntry
       />
+      <FormInput
+        formik={credentials}
+        fieldName="passwordConfirmation"
+        placeHolder="Confirm password"
+        secureTextEntry
+      />
       <Button
-        testID="signInButton"
+        testID="signUpButton"
         disabled={!!Object.keys(credentials.errors).length}
         style={styles.button}
-        title="Sign In"
+        title="Sign Up"
         onPress={credentials.handleSubmit}
       />
     </View>
@@ -64,4 +77,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignInContainer;
+export default SignUpContainer;

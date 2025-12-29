@@ -7,6 +7,7 @@ import RepositoryView from "./RepositoryView";
 import ReviewForm from "./ReviewForm";
 import SignIn from "./SignIn";
 import SignOut from "./SignOut";
+import SignUp from "./SignUp";
 
 import { GET_ME } from "../graphql/queries";
 
@@ -38,6 +39,10 @@ const Main = () => {
       linkTo: "/signin",
       label: "Sign In",
     });
+    actions.push({
+      linkTo: "/signup",
+      label: "Sign Up",
+    });
   }
 
   console.log("Main rendering");
@@ -46,6 +51,7 @@ const Main = () => {
     <AppBar actions={actions}>
       <Routes>
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/signout" element={<SignOut />} />
         <Route path="/repositories" element={<RepositoryList />} />
         <Route path="/repositories/:id" element={<RepositoryView />} />

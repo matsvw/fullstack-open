@@ -1,33 +1,15 @@
-import { View, StyleSheet, TextInput, Button } from "react-native";
-import Text from "./Text";
+import { View, StyleSheet, Button } from "react-native";
 import theme from "../theme";
-import { useFormik, yupToFormErrors } from "formik";
+import { useFormik } from "formik";
 import * as yup from "yup";
+
+import FormInput from "./FormInput";
 
 const initialValues = {
   ownerName: "",
   repositoryName: "",
   text: "",
   rating: 0,
-};
-
-const FormInput = ({ review, fieldName, placeHolder }) => {
-  const hasError = (field) => review.touched[field] && review.errors[field];
-
-  return (
-    <>
-      <TextInput
-        style={hasError(fieldName) ? styles.inputError : styles.input}
-        placeholder={placeHolder}
-        value={review.values[fieldName]}
-        onBlur={review.handleBlur(fieldName)}
-        onChangeText={review.handleChange(fieldName)}
-      />
-      {hasError(fieldName) && (
-        <Text style={styles.errorMessage}>{review.errors[fieldName]}</Text>
-      )}
-    </>
-  );
 };
 
 const validationSchema = yup.object().shape({
@@ -58,21 +40,21 @@ const ReviewFormContainer = ({ onSubmit }) => {
   return (
     <View style={styles.container}>
       <FormInput
-        review={review}
+        formik={review}
         fieldName="ownerName"
         placeHolder="Repository owner name"
       />
       <FormInput
-        review={review}
+        formik={review}
         fieldName="repositoryName"
         placeHolder="Repository name"
       />
       <FormInput
-        review={review}
+        formik={review}
         fieldName="rating"
         placeHolder="Rating between 0 and 100"
       />
-      <FormInput review={review} fieldName="text" placeHolder="Review" />
+      <FormInput formik={review} fieldName="text" placeHolder="Review" />
 
       <Button
         testID="reviewButton"
@@ -85,30 +67,11 @@ const ReviewFormContainer = ({ onSubmit }) => {
   );
 };
 
-const INPUT = {
-  fontFamily: theme.fonts.main,
-  borderRadius: theme.boxes.radius,
-  borderWidth: 1,
-  marginBottom: 10,
-  padding: 10,
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
     backgroundColor: theme.colors.background,
-  },
-  input: {
-    ...INPUT,
-  },
-  inputError: {
-    borderColor: theme.colors.error,
-    ...INPUT,
-  },
-  errorMessage: {
-    color: theme.colors.error,
-    marginBottom: 10,
   },
   button: {
     fontFamily: theme.fonts.main,
