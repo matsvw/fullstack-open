@@ -2,6 +2,7 @@ import { View, StyleSheet, Image, Button, FlatList } from "react-native";
 import { openURL } from "expo-linking";
 import theme from "../theme";
 import Text from "./Text";
+import ReviewItem from "./ReviewItem";
 import { shortenNumber } from "../utils/formatter";
 
 const CenteredDetailView = ({ label, value }) => {
@@ -12,12 +13,6 @@ const CenteredDetailView = ({ label, value }) => {
     </View>
   );
 };
-
-const CircleNumber = ({ value }) => (
-  <View style={styles.circle}>
-    <Text style={styles.circleText}>{value}</Text>
-  </View>
-);
 
 const RepositoryInfo = ({ repository, fullView }) => {
   return (
@@ -57,29 +52,7 @@ const RepositoryInfo = ({ repository, fullView }) => {
   );
 };
 
-const ReviewItem = ({ review }) => {
-  const formatDate = (isoString) => {
-    return new Intl.DateTimeFormat("fi-FI").format(new Date(isoString));
-  };
-
-  return (
-    <View>
-      <View style={styles.separator} />
-      <View style={styles.container}>
-        <View style={styles.row}>
-          <View style={styles.colImage}>
-            <CircleNumber value={review.rating} />
-          </View>
-          <View style={styles.colMainDetails}>
-            <Text style={styles.boldText}>{review.user.username}</Text>
-            <Text style={styles.subTitle}>{formatDate(review.createdAt)}</Text>
-            <Text>{review.text}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-};
+const ItemSeparator = () => <View style={styles.separator} />;
 
 const RepositoryItem = ({ repository, fullView = false }) => {
   const reviewNodes = repository?.reviews
@@ -92,6 +65,7 @@ const RepositoryItem = ({ repository, fullView = false }) => {
     <FlatList
       data={reviewNodes}
       renderItem={({ item }) => <ReviewItem review={item} />}
+      ItemSeparatorComponent={() => <ItemSeparator />}
       keyExtractor={({ id }) => id}
       ListHeaderComponent={() => (
         <RepositoryInfo repository={repository} fullView={fullView} />
@@ -101,8 +75,6 @@ const RepositoryItem = ({ repository, fullView = false }) => {
 };
 
 export default RepositoryItem;
-
-const ItemSeparator = () => <View style={styles.separator} />;
 
 const styles = StyleSheet.create({
   logo: {
@@ -167,19 +139,5 @@ const styles = StyleSheet.create({
   separator: {
     height: 10,
     backgroundColor: theme.colors.greyBackground,
-  },
-  circle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  circleText: {
-    fontSize: theme.fontSizes.subheading,
-    color: theme.colors.primary,
-    fontWeight: theme.fontWeights.bold,
   },
 });

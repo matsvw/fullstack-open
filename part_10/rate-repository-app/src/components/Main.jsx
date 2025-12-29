@@ -5,6 +5,7 @@ import AppBar from "./AppBar";
 import RepositoryList from "./RepositoryList";
 import RepositoryView from "./RepositoryView";
 import ReviewForm from "./ReviewForm";
+import UserReviews from "./UserReviews";
 import SignIn from "./SignIn";
 import SignOut from "./SignOut";
 import SignUp from "./SignUp";
@@ -31,6 +32,10 @@ const Main = () => {
 
   if (!loading && !error && data?.me?.username) {
     actions.push({
+      linkTo: "/userreviews",
+      label: "My reviews",
+    });
+    actions.push({
       linkTo: "/signout",
       label: "Sign Out",
     });
@@ -56,6 +61,7 @@ const Main = () => {
         <Route path="/repositories" element={<RepositoryList />} />
         <Route path="/repositories/:id" element={<RepositoryView />} />
         <Route path="/review" element={<ReviewForm />} />
+        <Route path="/userreviews" element={<UserReviews />} />
         <Route path="*" element={<Navigate to="/signin" replace />} />
       </Routes>
     </AppBar>

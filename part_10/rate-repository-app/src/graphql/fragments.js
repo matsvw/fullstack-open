@@ -16,20 +16,27 @@ export const REPOSITORY_DETAILS = gql`
 `;
 
 export const REVIEW_DETAILS = gql`
-  fragment ReviewDetails on Repository {
+  fragment ReviewDetails on Review {
+    id
+    text
+    rating
+    createdAt
+    user {
+      id
+      username
+    }
+  }
+`;
+
+export const REPOSITORY_REVIEW_DETAILS = gql`
+  fragment RepositoryReviewDetails on Repository {
     reviews {
       edges {
         node {
-          id
-          text
-          rating
-          createdAt
-          user {
-            id
-            username
-          }
+          ...ReviewDetails
         }
       }
     }
   }
+  ${REVIEW_DETAILS}
 `;
