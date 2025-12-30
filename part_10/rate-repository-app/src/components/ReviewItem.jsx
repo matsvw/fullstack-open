@@ -1,5 +1,6 @@
-import { View, StyleSheet, Button } from "react-native";
+import { View, StyleSheet, Button, Alert } from "react-native";
 import { useNavigate } from "react-router-native";
+import useDeleteReview from "../hooks/useDeleteReview";
 import theme from "../theme";
 import Text from "./Text";
 
@@ -11,19 +12,51 @@ const CircleNumber = ({ value }) => (
 
 const ReviewItem = ({ review, showButtons = false }) => {
   const nav = useNavigate();
+  const [deleteReview] = useDeleteReview();
 
   const formatDate = (isoString) => {
     return new Intl.DateTimeFormat("fi-FI").format(new Date(isoString));
   };
 
-  const openRepo = () => {
-    console.log("Open repo: ", review.repositoryId);
-    nav(`/repositories/${review.repositoryId}`);
+  const openRepo = (repositoryId) => {
+    console.log("Open repo: ", repositoryId);
+    nav(`/repositories/${repositoryId}`);
   };
 
-  const deleteReview = () => {
-    console.log("Delete review");
+  const checkDelete = (reviewId) => {
+    showDeleteAlert(reviewId);
   };
+
+  const deleteConfirmed = async (reviewId) => {
+    try {
+      await deleteReview({ id: reviewId });
+    } catch (error) {
+      //console.log(error.graphQLErrors)
+      alert(error.message);
+      console.log(error.message);
+    }
+  };
+
+  const showDeleteAlert = (reviewId) =>
+    Alert.alert(
+      "Delete review",
+      "Are you sure you want to delete this review?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Delete canceled"), // do nothing
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteConfirmed(reviewId),
+          style: "default",
+        },
+      ],
+      {
+        cancelable: true,
+      }
+    );
 
   return (
     <View style={styles.container}>
@@ -40,14 +73,17 @@ const ReviewItem = ({ review, showButtons = false }) => {
       {showButtons && (
         <View style={styles.row}>
           <View style={styles.buttonWrapper}>
-            <Button title="View repository" onPress={openRepo} />
+            <Button
+              title="View repository"
+              onPress={() => openRepo(review.repositoryId)}
+            />
           </View>
 
           <View style={styles.buttonWrapper}>
             <Button
               color={theme.colors.error}
               title="Delete review"
-              onPress={deleteReview}
+              onPress={() => checkDelete(review.id)}
             />
           </View>
         </View>
