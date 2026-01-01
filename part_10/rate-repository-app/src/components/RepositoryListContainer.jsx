@@ -1,3 +1,4 @@
+import { useMemo, useCallback, useState, useEffect } from "react";
 import { View, FlatList, StyleSheet, Pressable } from "react-native";
 import { useDebouncedCallback } from "use-debounce";
 import { useNavigate } from "react-router-native";
@@ -41,6 +42,7 @@ const ListHeader = ({
 
 const RepositoryListContainer = ({
   repositories,
+  onEndReach,
   selectedOrder,
   setSelectedOrder,
   searchText,
@@ -48,33 +50,70 @@ const RepositoryListContainer = ({
   loading,
 }) => {
   const nav = useNavigate();
+  const [accumulatedNodes, setAccumulatedNodes] = useState([]);
 
-  const repositoryNodes = repositories
-    ? repositories.edges.map((edge) => edge.node)
-    : [];
+  useEffect(() => {
+    const newNodes = repositories?.edges.map((e) => e.node) ?? [];
 
-  const navToRepo = (id) => {
-    nav(`/repositories/${id}`);
-  };
+    setAccumulatedNodes((prev) => {
+      const existingIds = new Set(prev.map((n) => n.id));
+      const uniqueNewNodes = newNodes.filter(
+        (node) => !existingIds.has(node.id)
+      );
+
+      // If this looks like a fresh fetch (fewer items than before), replace
+      if (newNodes.length < prev.length) {
+        return newNodes;
+      }
+
+      return [...prev, ...uniqueNewNodes];
+    });
+  }, [repositories]);
+
+  // Reset when search/order changes
+  useEffect(() => {
+    setAccumulatedNodes(repositories?.edges.map((e) => e.node) ?? []);
+  }, [selectedOrder, searchText]);
+
+  const header = useMemo(
+    () => (
+      <ListHeader
+        selectedOrder={selectedOrder}
+        setSelectedOrder={setSelectedOrder}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        loading={loading}
+      />
+    ),
+    [selectedOrder, searchText, loading]
+  );
+
+  const renderItem = useCallback(
+    ({ item }) => (
+      <Pressable onPress={() => nav(`/repositories/${item.id}`)}>
+        <RepositoryItem repository={item} />
+      </Pressable>
+    ),
+    [nav]
+  );
+
+  const handleEndReach = useCallback(() => {
+    onEndReach();
+  }, [onEndReach]);
 
   return (
     <FlatList
-      data={repositoryNodes}
+      data={accumulatedNodes}
+      keyExtractor={(item) => item.id}
       ItemSeparatorComponent={ItemSeparator}
-      renderItem={({ item, index, separators }) => (
-        <Pressable onPress={() => navToRepo(item.id)}>
-          <RepositoryItem key={item.id} repository={item} />
-        </Pressable>
-      )}
-      ListHeaderComponent={() => (
-        <ListHeader
-          selectedOrder={selectedOrder}
-          setSelectedOrder={setSelectedOrder}
-          searchText={searchText}
-          setSearchText={setSearchText}
-          loading={loading}
-        />
-      )}
+      renderItem={renderItem}
+      ListHeaderComponent={header}
+      onEndReached={handleEndReach}
+      onEndReachedThreshold={0.5}
+      removeClippedSubviews={false}
+      maintainVisibleContentPosition={{
+        minIndexForVisible: 0,
+      }}
     />
   );
 };

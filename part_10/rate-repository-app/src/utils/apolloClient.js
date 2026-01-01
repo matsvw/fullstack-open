@@ -1,7 +1,8 @@
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 import { SetContextLink } from "@apollo/client/link/context";
-import Constants from "expo-constants";
+import { relayStylePagination } from "@apollo/client/utilities";
+//import Constants from "expo-constants";
 
 import AuthStorage from "./authStorage";
 
@@ -14,6 +15,25 @@ if (__DEV__) {
 const APOLLO_URL = process.env.EXPO_PUBLIC_APOLLO_URL; // Using this, as Constants is serving up stale values for some reason
 //const APOLLO_URL = Constants.expoConfig.extra.APOLLO_URL;
 //const APOLLO_URL = "http://192.168.86.22:4000";
+
+const cache = new InMemoryCache({
+  typePolicies: {
+    Query: {
+      fields: {
+        repositories: relayStylePagination([
+          "orderBy",
+          "orderDirection",
+          "searchKeyword",
+        ]),
+      },
+    },
+    Repository: {
+      fields: {
+        reviews: relayStylePagination(),
+      },
+    },
+  },
+});
 
 const createApolloClient = () => {
   if (!APOLLO_URL) {
@@ -52,9 +72,9 @@ const createApolloClient = () => {
 
   return new ApolloClient({
     link: authLink.concat(httpLink),
-    cache: new InMemoryCache(),
     name: "rate-repository-app",
     queryDeduplication: false,
+    cache,
   });
 };
 

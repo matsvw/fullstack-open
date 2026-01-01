@@ -6,7 +6,7 @@ import Text from "./Text";
 const RepositoryList = () => {
   const [selectedOrder, setSelectedOrder] = useState("CD");
   const [searchText, setSearchText] = useState("");
-  const { repositories, loading, error } = useRepositories(
+  const { repositories, loading, error, fetchMore } = useRepositories(
     selectedOrder,
     searchText
   );
@@ -20,6 +20,11 @@ const RepositoryList = () => {
     return <Text>There was an error loading data</Text>;
   }
 
+  const onEndReach = () => {
+    //console.log("You have reached the end of the list");
+    fetchMore();
+  };
+
   return (
     <RepositoryListContainer
       selectedOrder={selectedOrder}
@@ -28,6 +33,7 @@ const RepositoryList = () => {
       setSearchText={setSearchText}
       repositories={repositories}
       loading={loading}
+      onEndReach={onEndReach}
     />
   );
 };

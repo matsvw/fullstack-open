@@ -10,18 +10,8 @@ const CircleNumber = ({ value }) => (
   </View>
 );
 
-const ReviewItem = ({ review, showButtons = false }) => {
-  const nav = useNavigate();
+const ReviewActions = ({ review }) => {
   const [deleteReview] = useDeleteReview();
-
-  const formatDate = (isoString) => {
-    return new Intl.DateTimeFormat("fi-FI").format(new Date(isoString));
-  };
-
-  const openRepo = (repositoryId) => {
-    console.log("Open repo: ", repositoryId);
-    nav(`/repositories/${repositoryId}`);
-  };
 
   const checkDelete = (reviewId) => {
     showDeleteAlert(reviewId);
@@ -58,6 +48,38 @@ const ReviewItem = ({ review, showButtons = false }) => {
       }
     );
 
+  const openRepo = (repositoryId) => {
+    console.log("Open repo: ", repositoryId);
+    nav(`/repositories/${repositoryId}`);
+  };
+
+  return (
+    <View style={styles.row}>
+      <View style={styles.buttonWrapper}>
+        <Button
+          title="View repository"
+          onPress={() => openRepo(review.repositoryId)}
+        />
+      </View>
+
+      <View style={styles.buttonWrapper}>
+        <Button
+          color={theme.colors.error}
+          title="Delete review"
+          onPress={() => checkDelete(review.id)}
+        />
+      </View>
+    </View>
+  );
+};
+
+const ReviewItem = ({ review, showButtons = false }) => {
+  const nav = useNavigate();
+
+  const formatDate = (isoString) => {
+    return new Intl.DateTimeFormat("fi-FI").format(new Date(isoString));
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -70,24 +92,7 @@ const ReviewItem = ({ review, showButtons = false }) => {
           <Text>{review.text}</Text>
         </View>
       </View>
-      {showButtons && (
-        <View style={styles.row}>
-          <View style={styles.buttonWrapper}>
-            <Button
-              title="View repository"
-              onPress={() => openRepo(review.repositoryId)}
-            />
-          </View>
-
-          <View style={styles.buttonWrapper}>
-            <Button
-              color={theme.colors.error}
-              title="Delete review"
-              onPress={() => checkDelete(review.id)}
-            />
-          </View>
-        </View>
-      )}
+      {showButtons && <ReviewActions review={review} />}
     </View>
   );
 };

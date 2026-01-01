@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from "react";
 import { View, StyleSheet, Image, Button, FlatList } from "react-native";
 import { openURL } from "expo-linking";
 import theme from "../theme";
@@ -54,22 +55,32 @@ const RepositoryInfo = ({ repository, fullView }) => {
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-const RepositoryItem = ({ repository, fullView = false }) => {
+const RepositoryItem = ({ repository, fullView = false, onEndReach }) => {
   const reviewNodes = repository?.reviews
     ? repository.reviews.edges.map((edge) => edge.node)
     : [];
 
   //console.log(reviewNodes);
 
+  const header = useMemo(
+    () => <RepositoryInfo repository={repository} fullView={fullView} />,
+    [repository, fullView]
+  );
+
+  const renderItem = useCallback(
+    ({ item }) => <ReviewItem review={item} />,
+    []
+  );
+
   return (
     <FlatList
       data={reviewNodes}
-      renderItem={({ item }) => <ReviewItem review={item} />}
+      renderItem={renderItem}
       ItemSeparatorComponent={() => <ItemSeparator />}
       keyExtractor={({ id }) => id}
-      ListHeaderComponent={() => (
-        <RepositoryInfo repository={repository} fullView={fullView} />
-      )}
+      ListHeaderComponent={header}
+      onEndReached={onEndReach}
+      onEndReachedThreshold={0.5}
     />
   );
 };

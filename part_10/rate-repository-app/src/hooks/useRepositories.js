@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from "react";
 import { useQuery } from "@apollo/client/react";
 import { GET_ORDERED_REPOSITORIES } from "../graphql/queries";
 
@@ -11,21 +12,52 @@ const useRepositories = (order, searchText) => {
   console.log("Selected order: ", order);
   console.log("Search text: ", searchText);
 
-  const variables = ordering.find((o) => o.key === order);
-  if (!variables) {
+  const orderVariables = ordering.find((o) => o.key === order);
+  if (!orderVariables) {
     throw new Error(`Ordering key '${order} not supported'`);
   }
 
-  const { data, error, loading } = useQuery(GET_ORDERED_REPOSITORIES, {
-    variables: {
-      orderDirection: variables.orderDirection,
-      orderBy: variables.orderBy,
+  const variables = useMemo(
+    () => ({
+      orderDirection: orderVariables.orderDirection,
+      orderBy: orderVariables.orderBy,
       searchKeyword: searchText,
-    },
-    fetchPolicy: "cache-and-network",
-  });
+      first: 4,
+    }),
+    [orderVariables, searchText]
+  );
 
-  return { repositories: data?.repositories, loading, error };
+  const { data, error, loading, fetchMore } = useQuery(
+    GET_ORDERED_REPOSITORIES,
+    {
+      variables,
+      fetchPolicy: "cache-and-network",
+    }
+  );
+
+  const handleFetchMore = useCallback(() => {
+    const canFetchMore = !loading && data?.repositories.pageInfo.hasNextPage;
+
+    if (!canFetchMore) {
+      return;
+    }
+
+    console.log("Fetch more: ", data.repositories.pageInfo.endCursor);
+
+    fetchMore({
+      variables: {
+        ...variables,
+        after: data.repositories.pageInfo.endCursor,
+      },
+    });
+  }, [loading, data, fetchMore, variables]);
+
+  return {
+    repositories: data?.repositories,
+    fetchMore: handleFetchMore,
+    loading,
+    error,
+  };
 };
 
 export default useRepositories;

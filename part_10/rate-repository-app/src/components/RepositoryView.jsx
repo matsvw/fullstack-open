@@ -5,7 +5,7 @@ import Text from "./Text";
 
 const RepositoryView = () => {
   const { id } = useParams();
-  const { repository, loading, error } = useRepository(id);
+  const { repository, loading, error, fetchMore } = useRepository(id);
 
   if (loading) {
     return <Text>Loading data...</Text>;
@@ -16,7 +16,18 @@ const RepositoryView = () => {
     return <Text>There was an error loading data</Text>;
   }
 
-  return <RepositoryItem repository={repository} fullView={true} />;
+  const onEndReach = () => {
+    //console.log("You have reached the end of the list");
+    fetchMore();
+  };
+
+  return (
+    <RepositoryItem
+      repository={repository}
+      fullView={true}
+      onEndReach={onEndReach}
+    />
+  );
 };
 
 export default RepositoryView;

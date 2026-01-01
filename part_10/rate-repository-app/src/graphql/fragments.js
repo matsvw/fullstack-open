@@ -30,13 +30,16 @@ export const REVIEW_DETAILS = gql`
 `;
 
 export const REPOSITORY_REVIEW_DETAILS = gql`
-  fragment RepositoryReviewDetails on Repository {
-    reviews {
-      edges {
-        node {
-          ...ReviewDetails
-        }
+  fragment RepositoryReviewDetails on ReviewConnection {
+    edges {
+      node {
+        ...ReviewDetails
       }
+    }
+    pageInfo {
+      endCursor
+      startCursor
+      hasNextPage
     }
   }
   ${REVIEW_DETAILS}
